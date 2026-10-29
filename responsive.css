@@ -1,0 +1,80 @@
+@media (max-width: 600px) {
+    input, select, .consulta-capturas .actions button {
+        width: 100%;
+    }
+
+    .registo-captura input,
+    .registo-captura select {
+        width: auto;
+        max-width: 100%;
+    }
+
+    /* Separadores (Registo/Consultar/Análise Avançada/Dados) em grelha 2x2 em vez de
+       ficarem todos numa linha e saírem do ecrã */
+    .tabs {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .tab-button {
+        margin: 0;
+        padding: 10px 6px;
+        font-size: 0.8em;
+        line-height: 1.2;
+        white-space: normal;
+        border-radius: var(--raio-sm);
+    }
+
+    .tab-button.active {
+        border-radius: var(--raio-sm);
+    }
+
+    .tab-button:nth-child(-n+3) { grid-column: span 2; }
+    .tab-button:nth-child(n+4) { grid-column: span 3; }
+
+    .tab-button i {
+        display: block;
+        margin: 0 0 4px 0;
+        font-size: 1.3em;
+    }
+
+    table th, table td {
+        padding: 6px;
+        white-space: normal;
+    }
+
+    table th:nth-child(1),
+    table td:nth-child(1) { width: 15%; }
+
+    table th:nth-child(2),
+    table td:nth-child(2) { width: 10%; }
+
+    table th:nth-child(3),
+    table td:nth-child(3) { width: 10%; }
+
+    table th:nth-child(4),
+    table td:nth-child(4) { width: 20%; }
+
+    table th:nth-child(5),
+    table td:nth-child(5) { width: 18%; }
+
+    table th:nth-child(6),
+    table td:nth-child(6) { width: 13%; }
+
+    .table-container {
+        overflow-x: auto;
+        display: block;
+    }
+
+    table {
+        display: block;
+        white-space: nowrap;
+    }
+
+    table td:last-child button {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}

@@ -1,0 +1,219 @@
+/* forms.css */
+
+input,
+select {
+    max-width: none;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 16px;
+    border: 1px solid var(--cinza-200);
+    border-radius: var(--raio-sm);
+    outline: none;
+    text-align: left;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: var(--branco);
+    color: var(--cinza-900);
+}
+
+input:focus,
+select:focus {
+    border-color: var(--azul-700);
+    box-shadow: 0 0 0 3px rgba(10, 95, 180, 0.15);
+}
+
+button {
+    background-color: var(--azul-700);
+    color: var(--branco);
+    border: none;
+    border-radius: var(--raio-sm);
+    cursor: pointer;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Inter', 'Open Sans', sans-serif;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+    box-shadow: var(--sombra);
+}
+
+button:hover {
+    background-color: var(--azul-600);
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.gravar button {
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: auto;
+    line-height: normal;
+    padding: 10px 18px;
+}
+
+#totaisAno {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: 700;
+    color: var(--azul-900);
+}
+
+.registo-captura input,
+.registo-captura select {
+    max-width: none;
+    padding: 10px;
+    border: 1px solid var(--cinza-200);
+    border-radius: var(--raio-sm);
+    text-align: left;
+}
+
+.consulta-capturas .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    max-width: 750px;
+    margin: 15px auto;
+}
+
+.consulta-capturas .actions button {
+    width: calc(33% - 14px);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--azul-800);
+    color: var(--branco);
+    border: none;
+    border-radius: var(--raio-sm);
+    cursor: pointer;
+    padding: 12px 15px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: var(--sombra);
+    transition: background-color 0.2s ease, transform 0.15s ease;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.consulta-capturas .actions button:hover {
+    background-color: var(--azul-700);
+    transform: translateY(-1px);
+}
+
+/* Para telas menores, exibir os botões em coluna */
+@media (max-width: 600px) {
+    .consulta-capturas .actions button {
+        width: 100%;
+    }
+}
+
+.consulta-capturas .gravar {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.consulta-capturas .gravar button#limparTabelaCapturas {
+    background-color: var(--vermelho);
+}
+
+.registo-captura .form-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    text-align: center;
+}
+
+.registo-captura .form-row {
+    width: 275px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.registo-captura .form-row input[type="date"],
+.registo-captura .form-row select,
+.registo-captura .form-row input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--cinza-200);
+    border-radius: var(--raio-sm);
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.registo-captura input,
+.registo-captura select {
+    max-width: none;
+}
+
+.registo-captura h2 {
+    margin-bottom: 16px;
+}
+
+.registo-captura .message {
+    margin-bottom: 10px;
+}
+
+.registo-captura .gravar {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.registo-captura .gravar button {
+    padding: 10px 20px;
+    font-size: 1.05em;
+}
+
+.analise .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 15px;
+}
+
+#limparAnalise {
+    background-color: #d9a400;
+    color: #212529;
+}
+
+.consulta-capturas .registo-captura select#anoConsulta {
+    padding: 8px;
+    border: 1px solid var(--cinza-200);
+    border-radius: var(--raio-sm);
+    font-size: 0.9em;
+    width: auto;
+    min-width: 80px;
+    margin: 15px auto;
+    display: block;
+    text-align: center;
+}
+
+/* Estado do último backup (separador Dados) */
+.estado-backup {
+    margin: 4px 0 10px 0;
+    padding: 8px 12px;
+    border-radius: var(--raio-sm);
+    background-color: var(--azul-100);
+    color: var(--azul-900);
+    font-size: 0.92em;
+    text-align: center;
+}
+
+.estado-backup.estado-backup-aviso {
+    background-color: var(--terracota-bg);
+    color: var(--cinza-900);
+    border-left: 4px solid var(--terracota);
+}
+
+.versao-app {
+    margin-top: 24px;
+    color: var(--cinza-500);
+    font-size: 0.85em;
+    text-align: center;
+}

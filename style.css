@@ -1,0 +1,63 @@
+.pppactions button:last-child {
+    margin-right: 0;
+}
+
+.registo-captura {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Espaço uniforme entre os elementos */
+}
+
+@media print {
+    button { display: none; }
+}
+
+/* Para telas menores (até 600px de largura) */
+@media (max-width: 600px) {
+    table {
+        font-size: 10px;
+    }
+
+    table th, table td {
+        padding: 6px; /* Ajustei o padding para melhor espaçamento */
+        white-space: normal; /* Permite quebras de linha */
+    }
+
+    /* Ajuste de largura das colunas */
+    table th:nth-child(1), table td:nth-child(1) { /* Data */
+        width: 15%;
+    }
+    table th:nth-child(2), table td:nth-child(2) { /* Peso */
+        width: 10%;
+    }
+    table th:nth-child(3), table td:nth-child(3) { /* Tamanho */
+        width: 10%;
+    }
+    table th:nth-child(4), table td:nth-child(4) { /* Local */
+        width: 20%;
+    }
+    table th:nth-child(5), table td:nth-child(5) { /* Amostra */
+        width: 18%;
+    }
+    table th:nth-child(6), table td:nth-child(6) { /* Remover */
+        width: 13%;
+    }
+
+    /* Habilita rolagem horizontal */
+    .table-container {
+        overflow-x: auto;
+        display: block;
+    }
+
+    table {
+        display: block;
+        white-space: nowrap;
+    }
+
+    /* Ajuste para o botão "Remover" */
+    table td:last-child button {
+        padding: 8px 12px; /* Aumenta o padding do botão */
+        font-size: 12px; /* Aumenta o tamanho da fonte do botão */
+    }
+}

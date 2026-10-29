@@ -1,0 +1,22 @@
+{
+  "name": "SeaFishing",
+  "short_name": "SeaFishing",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0A5FB4",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "ícone/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "ícone/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

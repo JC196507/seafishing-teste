@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesca Lúdica</title>
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="forms.css">
+    <link rel="stylesheet" href="tables.css">
+    <link rel="stylesheet" href="print.css">
+	<link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="ícone/icon-192.png">
+    <link rel="apple-touch-icon" href="ícone/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pesca Lúdica">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0A5FB4">
+</head>
+<body>
+	    <header>
+	        <h1><img src="ícone/icon-192.png" alt="Ícone de Robalo" style="height: 40px; width: 40px; vertical-align: middle; margin-right: 8px; border-radius: 6px;">PESCA LÚDICA MAR</h1>
+        <nav>
+        <ul>
+            <li><a href="https://www.ipma.pt/pt/otempo/prev.localidade.hora/#Aveiro&Ovar" target="_blank"><i class="fas fa-cloud-sun"></i> METEO</a></li>
+            <li><a href="https://tabuademares.com/pt/porto/leixoes" target="_blank"><i class="fas fa-water"></i> MARÉS</a></li>
+            <li><a href="https://pt.windfinder.com/forecasts/" target="_blank"><i class="fas fa-wind"></i> MAR</a></li>
+        </ul>
+    </nav>
+    </header>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-button active" onclick="mostrarSecao('registo')"><i class="fas fa-pencil"></i> Registo de Captura</button>
+            <button class="tab-button" onclick="mostrarSecao('consulta')"><i class="fas fa-search"></i> Consultar Capturas</button>
+            <button class="tab-button" onclick="mostrarSecao('mapa')"><i class="fas fa-map-location-dot"></i> Mapa</button>
+            <button class="tab-button" onclick="mostrarSecao('analiseAvancada')"><i class="fas fa-chart-line"></i> Análise Avançada</button>
+            <button class="tab-button" onclick="mostrarSecao('dados')"><i class="fas fa-cloud-arrow-down"></i> Dados</button>
+        </div>
+
+        <div class="message success" id="messageSuccess"></div>
+        <div class="message error" id="messageError"></div>
+
+        <div id="registo" class="tab-content active">
+            <section class="registo-captura">
+                <h2>Registo de captura</h2>
+                <div class="form-grid">
+                    <div class="form-row">
+                        <input type="date" id="dataCaptura" placeholder="Data da Captura">
+                    </div>
+                    <div class="form-row">
+                        <select id="tipoPeixe">
+                            <option value="">Seleccione o tipo de peixe</option>
+                            <option value="Anchova">Anchova</option>
+                            <option value="Baila">Baila</option>
+                            <option value="Bicuda">Bicuda</option>
+							<option value="Choupa">Choupa</option>
+                            <option value="Congro">Congro</option>
+                            <option value="Corvina">Corvina</option>
+                            <option value="Dourada">Dourada</option>
+							<option value="Ferreira">Ferreira</option>
+                            <option value="Goraz">Goraz</option>
+                            <option value="Linguado">Linguado</option>
+                            <option value="Pargo">Pargo</option>
+                            <option value="Peixegalo">Peixe-Galo</option>
+                            <option value="Pregado">Pregado</option>
+                            <option value="Raia">Raia</option>
+                            <option value="Robalo">Robalo</option>
+                            <option value="Rodovalho">Rodovalho</option>
+                            <option value="Ruivo">Ruivo</option>
+                            <option value="Sargo">Sargo</option>
+                            <option value="Sarrajao">Sarrajão</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <select id="tipoPesca">
+                            <option value="">Seleccione o tipo de pesca</option>
+							<option value="Boia">Bóia</option>
+                            <option value="Borracha">Borracha</option>
+                            <option value="Embarcada">Embarcada</option>
+                            <option value="Spinning">Spinning</option>
+                            <option value="Fundo">Surfcasting</option>
+						</select>
+                    </div>
+                    <div class="form-row">
+                        <select id="tipoIsco">
+                            <option value="">Seleccione o isco</option>
+                            <option value="Amostra">ARTIFICIAL-Amostra</option>
+							<option value="Borracha">ARTIFICIAL-Borracha</option>
+							<option value="Vinil">ARTIFICIAL-Vinil</option>
+                            <option value="Ameijoa">Amêijoa</option>
+                            <option value="Bicha">Bicha</option>
+                            <option value="Cagao">Cagão</option>
+                            <option value="Camarao">Camarão</option>
+                            <option value="Caranguejo">Caranguejo</option>
+                            <option value="Casulo">Casulo</option>
+                            <option value="Choco">Choco</option>
+                            <option value="Coreano">Coreano</option>
+                            <option value="Fole">Fole</option>
+                            <option value="Ganso">Ganso</option>
+                            <option value="Lingueirao">Lingueirão/Navalha</option>
+                            <option value="Lula">Lula</option>
+                            <option value="Sardinha">Sardinha</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <select id="mare">
+                            <option value="">Seleccione a maré</option>
+                            <option value="Vazante">Vazante</option>
+                            <option value="BM">Baixa-mar</option>
+                            <option value="Enchente">Enchente</option>
+                            <option value="PM">Preia-mar</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <select id="lua">
+                            <option value="">Seleccione a fase da lua</option>
+                            <option value="Nova">Nova</option>
+                            <option value="Crescente">Crescente</option>
+                            <option value="Cheia">Cheia</option>
+                            <option value="Minguante">Minguante</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <select id="periodoDia">
+                            <option value="">Seleccione o período do dia</option>
+                            <option value="Noite">Noite</option>
+                            <option value="Amanhecer">Amanhecer</option>
+                            <option value="Manha">Manhã</option>
+                            <option value="Tarde">Tarde</option>
+                            <option value="Escurecer">Escurecer</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <input type="number" id="peso" placeholder="Peso (g)" step="1" min="101" max="100000">
+                    </div>
+                    <div class="form-row">
+                        <input type="number" id="tamanho" placeholder="Tamanho (cm)" step="1" min="11" max="300">
+                    </div>
+                    <div class="form-row">
+                        <select id="concelho">
+                            <option value="">Seleccione um concelho</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <select id="local">
+                            <option value="">Seleccione um local</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="gravar">
+                    <button onclick="gravarCaptura()"><i class="fas fa-save"></i> Gravar</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="consulta" class="tab-content">
+            <section class="consulta-capturas" id="consultaCapturas">
+                <h3>Consultar capturas</h3>
+                <div class="registo-captura">
+                    <select id="anoConsulta"></select>
+                </div>
+				<div class="actions grid-layout">
+
+                    <button onclick="consultarCapturas()">
+                        <i class="fas fa-search"></i> Detalhe capturas ano seleccionado
+                    </button>
+                    <button onclick="consultarResumoPorLocal()">
+                        <i class="fas fa-chart-bar"></i> Capturas por Local-Ano
+                    </button>
+					<button onclick="imprimirCapturas()">
+                        <i class="fas fa-print"></i> Análise Global
+                    </button>
+                    <button onclick="abrirResumoGeral()">
+                        <i class="fa-solid fa-medal"></i> ANÁLISE GERAL CAPTURAS-ANOS
+                    </button>
+                    <button onclick="abrirRankingMaioresPeixes()">
+                        <i class="fa-solid fa-trophy"></i> RANKING 25 MAIORES PEIXES
+                    </button>
+                    <button onclick="gerarRankingLocais()">
+                        <i class="fas fa-list-ol"></i> RANKING GERAL DOS SPOTS
+                    </button>
+                </div>
+        <div class="table-container" id="containerCapturas"></div>
+		<div class="table-container" id="analiseGlobal"></div>
+		<h3 id="totaisAno"></h3>
+		<div class="table-container">
+		<div id="resumoLocais"></div>
+		</div>
+
+		<!-- Botões de limpar organizados verticalmente com o mesmo espaçamento -->
+		<div class="gravar">
+		<button id="limparTabelaCapturas" onclick="limparTabelaCapturas()">
+        <i class="fas fa-eraser"></i> Limpar Detalhe-Ano
+		</button>
+		</div>
+		<div class="gravar">
+		<button id="limparAnalise" onclick="limparAnalise()">
+        <i class="fas fa-eraser"></i> Limpar Análise Local-Ano
+		</button>
+		</div>
+		<div class="gravar">
+		<button onclick="limparAnaliseGlobal()">
+        <i class="fas fa-eraser"></i> Limpar Análise Global
+		</button>
+		</div>
+			</section>
+        </div>
+
+        <div id="mapa" class="tab-content">
+            <section class="registo-captura">
+                <h2>Mapa dos locais</h2>
+                <p class="mapa-ajuda">Marca cada local uma vez (tocando no mapa ou com o GPS quando lá estiveres). Depois vês onde apanhas mais.</p>
+
+                <div class="form-grid">
+                    <div class="form-row"><select id="mapaAno" onchange="mapaAtualizar(true)"><option value="">Todos os anos</option></select></div>
+                    <div class="form-row">
+                        <select id="mapaMetrica" onchange="mapaAtualizar(false)">
+                            <option value="n">Cor: nº de capturas</option>
+                            <option value="peso">Cor: peso total</option>
+                            <option value="medio">Cor: peso médio</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="mapaAviso" class="estado-backup estado-backup-aviso" style="display:none"></div>
+                <div id="mapaContainer"></div>
+                <p class="mapa-legenda">Tamanho = nº de capturas · cor mais escura = valor mais alto · cinzento = sem capturas neste período.</p>
+
+                <div id="mapaEstado" class="estado-backup" style="display:none"></div>
+
+                <h3>Marcar a posição de um local</h3>
+                <div class="form-row"><select id="mapaLocalSelect"><option value="">Escolhe um local</option></select></div>
+                <div class="actions grid-layout">
+                    <button onclick="mapaModoMarcar()"><i class="fas fa-hand-pointer"></i> Tocar no mapa</button>
+                    <button onclick="mapaUsarGPS()"><i class="fas fa-location-crosshairs"></i> Usar o GPS (estou lá)</button>
+                    <button onclick="mapaRemoverPosicao()"><i class="fas fa-trash"></i> Remover posição</button>
+                </div>
+
+                <h3>Locais com capturas</h3>
+                <p id="mapaResumo" class="mapa-ajuda"></p>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Local</th><th>Capturas</th><th>Peso total</th><th>Posição</th></tr></thead>
+                        <tbody id="mapaTabelaCorpo"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <div id="analiseAvancada" class="tab-content">
+            <section class="registo-captura">
+                <h2>Análise avançada</h2>
+
+                <h3>Evolução ao longo do tempo</h3>
+                <div class="gravar">
+                    <button onclick="gerarGraficoEvolucao()"><i class="fas fa-chart-line"></i> Gerar gráfico de evolução mensal</button>
+                </div>
+                <div class="table-container"><canvas id="graficoEvolucao"></canvas></div>
+
+                <h3>Peso total por espécie</h3>
+                <div class="gravar">
+                    <button onclick="gerarGraficoEspecies()"><i class="fas fa-fish"></i> Gerar gráfico por espécie</button>
+                </div>
+                <div class="table-container"><canvas id="graficoEspecies"></canvas></div>
+
+                <h3>Distribuição por maré, lua e período do dia</h3>
+                <div class="gravar">
+                    <button onclick="gerarGraficosDistribuicao()"><i class="fas fa-water"></i> Gerar gráficos de distribuição</button>
+                </div>
+                <div class="charts-row">
+                    <div class="table-container"><canvas id="graficoMare"></canvas></div>
+                    <div class="table-container"><canvas id="graficoLua"></canvas></div>
+                    <div class="table-container"><canvas id="graficoPeriodo"></canvas></div>
+                </div>
+
+                <h3>Cruzamento maré × período do dia</h3>
+                <p>Em que combinação de maré e período costumas apanhar mais, e com mais peso médio?</p>
+                <div class="gravar">
+                    <button onclick="gerarCruzamentoMarePeriodo()"><i class="fas fa-table-cells"></i> Gerar cruzamento</button>
+                </div>
+                <div class="table-container" id="cruzamentoMarePeriodo"></div>
+
+                <h3>Comparar dois anos</h3>
+                <div class="form-grid">
+                    <div class="form-row"><select id="anoComparar1"><option value="">Seleccione o ano</option></select></div>
+                    <div class="form-row"><select id="anoComparar2"><option value="">Seleccione o ano</option></select></div>
+                </div>
+                <div class="gravar">
+                    <button onclick="compararAnos()"><i class="fas fa-scale-balanced"></i> Comparar</button>
+                </div>
+                <div class="table-container" id="comparacaoAnos"></div>
+
+                <h3>Estatísticas por espécie (média e mediana)</h3>
+                <div class="gravar">
+                    <button onclick="gerarEstatisticasEspecie()"><i class="fas fa-calculator"></i> Gerar estatísticas</button>
+                </div>
+                <div class="table-container" id="estatisticasEspecie"></div>
+
+                <div class="gravar">
+                    <button onclick="limparAnaliseAvancada()"><i class="fas fa-eraser"></i> Limpar Análise Avançada</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="dados" class="tab-content">
+            <section class="registo-captura">
+                <h2>Cópia de segurança</h2>
+                <p>Usa isto para guardares as tuas capturas antes de mudares de telemóvel, ou para restaurares um backup feito anteriormente.</p>
+
+                <h3>Exportar</h3>
+                <p>Gera um ficheiro com todas as tuas capturas. Guarda-o num sítio seguro (email para ti próprio, Drive, etc.).</p>
+                <p id="estadoBackup" class="estado-backup"></p>
+                <div class="gravar">
+                    <button onclick="exportarDados()"><i class="fas fa-download"></i> Exportar Dados (.json)</button>
+                </div>
+
+                <h3>Importar</h3>
+                <p>Escolhe um ficheiro de backup exportado anteriormente por esta app.</p>
+                <div class="form-row">
+                    <label><input type="radio" name="modoImportacao" value="juntar" checked> Juntar aos dados já existentes neste telemóvel</label>
+                </div>
+                <div class="form-row">
+                    <label><input type="radio" name="modoImportacao" value="substituir"> Substituir todos os dados existentes neste telemóvel</label>
+                </div>
+                <div class="form-row">
+                    <input type="file" id="ficheiroImportacao" accept="application/json,.json" onchange="importarDados(event)">
+                </div>
+
+                <p class="versao-app">Pesca Lúdica · versão <span id="versaoApp"></span></p>
+            </section>
+        </div>
+
+        <footer>
+            <div class="footer-info">
+                <p>JCunha (v2-2026)</p>
+            </div>
+        </footer>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="dados.js"></script>
+    <script src="utils.js"></script>
+    <script src="resumo_local.js"></script>
+    <script src="print1.js"></script>
+	<script src="print2.js"></script>
+	<script src="print3.js"></script>
+	<script src="print4.js"></script>
+	<script src="script.js"></script>
+    <script src="locais.js"></script>
+    <script src="analise_avancada.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="mapa.js"></script>
+</body>
+</html>
