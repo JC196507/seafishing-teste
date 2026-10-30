@@ -397,17 +397,17 @@ function exibirMensagem(tipo, mensagem) {
     }, 3000); // A mensagem desaparece após 3 segundos
 }
 
-function mostrarSecao(idSecao) {
-  // Esconde todas as secções de conteúdo
-  const conteudos = document.querySelectorAll('.tab-content');
-  conteudos.forEach(conteudo => {
-    conteudo.classList.remove('active');
-  });
+// ===== Navegação entre ecrãs =====
+// O ecrã inicial é a base. Cada ecrã aberto fica empilhado no histórico do
+// browser, por isso o botão "Voltar" do telemóvel regressa ao ecrã anterior
+// (e do inicial sai da app, como numa app normal).
+let secaoAtual = 'inicio';
+let profundidadeNavegacao = 0;
 
-  // Remove a classe 'active' de todos os botões de aba
-  const botoes = document.querySelectorAll('.tabs .tab-button');
-  botoes.forEach(botao => {
-    botao.classList.remove('active');
+function aplicarSecao(idSecao) {
+  // Esconde todas as secções de conteúdo
+  document.querySelectorAll('.tab-content').forEach(conteudo => {
+    conteudo.classList.remove('active');
   });
 
   // Mostra a secção selecionada
@@ -415,19 +415,62 @@ function mostrarSecao(idSecao) {
   if (secaoMostrar) {
     secaoMostrar.classList.add('active');
   }
+  secaoAtual = idSecao;
 
-  // Ativa o botão da aba correspondente
-  const botaoAtivar = document.querySelector(`.tabs .tab-button[onclick="mostrarSecao('${idSecao}')"]`);
-  if (botaoAtivar) {
-    botaoAtivar.classList.add('active');
-  }
+  // A barra "Início" só aparece fora do ecrã inicial
+  const barra = document.getElementById('barraVoltar');
+  if (barra) barra.style.display = idSecao === 'inicio' ? 'none' : 'flex';
 
-  // O mapa só tem tamanho certo quando o separador está visível
+  if (typeof window.scrollTo === 'function') window.scrollTo(0, 0);
+
+  // O mapa só tem tamanho certo quando o ecrã está visível
   if (idSecao === 'mapa' && typeof aoMostrarMapa === 'function') {
     aoMostrarMapa();
   }
+  if (idSecao === 'inicio' && typeof inicioAtualizar === 'function') {
+    inicioAtualizar();
+  }
 }
 
+function mostrarSecao(idSecao) {
+  if (idSecao === 'inicio') {
+    voltarInicio();
+    return;
+  }
+  if (idSecao === secaoAtual) return;
+  profundidadeNavegacao++;
+  try {
+    history.pushState({ secao: idSecao, n: profundidadeNavegacao }, '');
+  } catch (e) { /* sem histórico: a navegação continua a funcionar, só não há "Voltar" */ }
+  aplicarSecao(idSecao);
+}
+
+function voltarInicio() {
+  if (profundidadeNavegacao > 0 && typeof history.go === 'function') {
+    history.go(-profundidadeNavegacao); // o popstate trata de mostrar o início
+    // Rede de segurança, caso o browser não dispare o evento
+    setTimeout(() => {
+      if (secaoAtual !== 'inicio') {
+        profundidadeNavegacao = 0;
+        aplicarSecao('inicio');
+      }
+    }, 400);
+  } else {
+    profundidadeNavegacao = 0;
+    if (secaoAtual !== 'inicio') aplicarSecao('inicio');
+  }
+}
+
+window.addEventListener('popstate', (e) => {
+  const estado = e.state || { secao: 'inicio', n: 0 };
+  profundidadeNavegacao = estado.n || 0;
+  aplicarSecao(estado.secao || 'inicio');
+});
+
 window.onload = () => {
-  mostrarSecao('registo');
+  try {
+    history.replaceState({ secao: 'inicio', n: 0 }, '');
+  } catch (e) { /* ignora */ }
+  profundidadeNavegacao = 0;
+  aplicarSecao('inicio');
 };

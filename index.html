@@ -34,18 +34,32 @@
     </nav>
     </header>
     <div class="container">
-        <div class="tabs">
-            <button class="tab-button active" onclick="mostrarSecao('registo')"><i class="fas fa-pencil"></i> Registo de Captura</button>
-            <button class="tab-button" onclick="mostrarSecao('consulta')"><i class="fas fa-search"></i> Consultar Capturas</button>
-            <button class="tab-button" onclick="mostrarSecao('mapa')"><i class="fas fa-map-location-dot"></i> Mapa</button>
-            <button class="tab-button" onclick="mostrarSecao('analiseAvancada')"><i class="fas fa-chart-line"></i> Análise Avançada</button>
-            <button class="tab-button" onclick="mostrarSecao('dados')"><i class="fas fa-cloud-arrow-down"></i> Dados</button>
+        <div id="barraVoltar" class="barra-voltar" style="display:none">
+            <button type="button" class="botao-voltar" onclick="voltarInicio()"><i class="fas fa-arrow-left"></i> Início</button>
         </div>
 
         <div class="message success" id="messageSuccess"></div>
         <div class="message error" id="messageError"></div>
 
-        <div id="registo" class="tab-content active">
+        <div id="inicio" class="tab-content active">
+            <section class="inicio">
+                <button type="button" class="inicio-principal" onclick="mostrarSecao('registo')">
+                    <i class="fas fa-fish"></i><span>Registar captura</span>
+                </button>
+
+                <div id="inicioResumo" class="inicio-resumo"></div>
+                <p id="inicioBackup" class="estado-backup"></p>
+
+                <div class="inicio-grid">
+                    <button type="button" class="inicio-tile" onclick="mostrarSecao('consulta')"><i class="fas fa-search"></i><span>Consultar capturas</span></button>
+                    <button type="button" class="inicio-tile" onclick="mostrarSecao('mapa')"><i class="fas fa-map-location-dot"></i><span>Mapa dos locais</span></button>
+                    <button type="button" class="inicio-tile" onclick="mostrarSecao('analiseAvancada')"><i class="fas fa-chart-line"></i><span>Análise avançada</span></button>
+                    <button type="button" class="inicio-tile" onclick="mostrarSecao('dados')"><i class="fas fa-cloud-arrow-down"></i><span>Cópia de segurança</span></button>
+                </div>
+            </section>
+        </div>
+
+        <div id="registo" class="tab-content">
             <section class="registo-captura">
                 <h2>Registo de captura</h2>
                 <div class="form-grid">
@@ -352,6 +366,7 @@
 	<script src="script.js"></script>
     <script src="locais.js"></script>
     <script src="analise_avancada.js"></script>
+    <script src="inicio.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="mapa.js"></script>
 </body>

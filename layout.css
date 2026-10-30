@@ -73,46 +73,10 @@
     margin-top: 10px;
 }
 
-/* Estilos para as abas — estilo "pill", compactas */
-.tabs {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 16px;
-    padding: 6px;
-    background-color: var(--azul-100);
-    border-radius: var(--raio);
-    gap: 4px;
-}
 
-.tab-button {
-    flex: 1;
-    background-color: transparent;
-    border: none;
-    padding: 10px 12px;
-    cursor: pointer;
-    font-size: 0.9em;
-    font-weight: 600;
-    color: var(--azul-700);
-    border-radius: var(--raio-sm);
-    transition: background-color 0.2s ease, color 0.2s ease;
-    margin: 0;
-}
 
-.tab-button.active {
-    background-color: var(--azul-700);
-    color: var(--branco);
-    border-bottom: 3px solid var(--terracota);
-    box-shadow: var(--sombra);
-}
 
-.tab-button:hover {
-    background-color: var(--azul-400);
-    color: var(--branco);
-}
 
-.tab-button i {
-    margin-right: 5px;
-}
 
 /* Estilos para o conteúdo das abas */
 .tab-content {
@@ -190,4 +154,152 @@
 
 #mapa tbody tr {
     cursor: pointer;
+}
+
+/* ===== Barra "Início" (aparece em todos os ecrãs menos no inicial) ===== */
+.barra-voltar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    margin: -6px -4px 10px -4px;
+    padding: 8px 4px;
+    background: var(--branco);
+    border-bottom: 1px solid var(--cinza-200);
+}
+
+.botao-voltar {
+    background-color: var(--azul-100);
+    color: var(--azul-900);
+    box-shadow: none;
+    padding: 8px 14px;
+    font-size: 0.95em;
+}
+
+.botao-voltar:hover {
+    background-color: var(--azul-700);
+    color: var(--branco);
+}
+
+.botao-voltar i {
+    margin-right: 6px;
+}
+
+/* ===== Ecrã inicial ===== */
+.inicio {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.inicio-principal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+    padding: 22px 16px;
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: 1.35em;
+    font-weight: 600;
+    background: var(--azul-700);
+    color: var(--branco);
+    border-bottom: 4px solid var(--terracota);
+    border-radius: 16px;
+    box-shadow: var(--sombra-forte);
+}
+
+.inicio-principal i {
+    font-size: 1.3em;
+}
+
+.inicio-resumo {
+    background: var(--branco);
+    border: 1px solid var(--cinza-200);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+    padding: 14px;
+    text-align: center;
+}
+
+.inicio-titulo {
+    margin: 0 0 10px 0;
+    color: var(--cinza-500);
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.inicio-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.inicio-stat {
+    background: var(--azul-100);
+    border-radius: var(--raio-sm);
+    padding: 10px 6px;
+}
+
+.inicio-stat strong {
+    display: block;
+    color: var(--azul-900);
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: 1.15em;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.inicio-stat span {
+    color: var(--cinza-500);
+    font-size: 0.8em;
+}
+
+.inicio-ultima,
+.inicio-vazio {
+    margin: 10px 0 0 0;
+    color: var(--cinza-900);
+    font-size: 0.92em;
+}
+
+.inicio-vazio {
+    margin: 0;
+}
+
+.inicio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.inicio-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 18px 8px;
+    font-size: 0.95em;
+    background: var(--branco);
+    color: var(--azul-900);
+    border: 1px solid var(--cinza-200);
+    border-radius: var(--raio);
+}
+
+.inicio-tile i {
+    color: var(--azul-700);
+    font-size: 1.6em;
+}
+
+.inicio-tile:hover {
+    background: var(--azul-100);
+    color: var(--azul-900);
+}
+
+@media (max-width: 380px) {
+    .inicio-stats {
+        grid-template-columns: 1fr;
+    }
 }

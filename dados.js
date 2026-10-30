@@ -3,7 +3,7 @@
 // destas funções, nunca directamente no localStorage. Assim, trocar o
 // armazenamento (ex.: para IndexedDB) passa a mexer apenas neste ficheiro.
 
-const APP_VERSAO = "2.2";
+const APP_VERSAO = "2.3";
 const CHAVE_CAPTURAS = "capturas";
 const CHAVE_ULTIMO_BACKUP = "ultimoBackup";
 const CHAVE_COORDS = "locaisCoords";
@@ -109,8 +109,11 @@ function obterUltimoBackup() {
 }
 
 function atualizarEstadoBackup() {
-    let el = document.getElementById("estadoBackup");
-    if (!el) return;
+    // O mesmo aviso aparece no separador Dados e no ecrã inicial
+    let elementos = ["estadoBackup", "inicioBackup"]
+        .map(id => document.getElementById(id))
+        .filter(Boolean);
+    if (!elementos.length) return;
 
     let total = obterCapturas().length;
     let ultimo = obterUltimoBackup();
@@ -130,8 +133,10 @@ function atualizarEstadoBackup() {
         if (aviso) texto += " Já passou mais de um mês — convém fazer outro.";
     }
 
-    el.textContent = texto;
-    el.classList.toggle("estado-backup-aviso", aviso);
+    elementos.forEach(el => {
+        el.textContent = texto;
+        el.classList.toggle("estado-backup-aviso", aviso);
+    });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
