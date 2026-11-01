@@ -76,6 +76,8 @@ function atualizarLocaisOrdenados() {
 }
 
 function gravarCaptura() {
+    // O período do dia (e a lua) sugeridos acompanham a hora de agora enquanto não os mudares à mão
+    if (typeof aplicarSugestoesRegisto === 'function') aplicarSugestoesRegisto();
     let data = document.getElementById("dataCaptura").value;
     let peso = parseInt(document.getElementById("peso").value);
     let tamanho = parseInt(document.getElementById("tamanho").value);
@@ -93,11 +95,13 @@ function gravarCaptura() {
 
     if (!data || isNaN(peso) || peso <= 100 || peso > 100000 || isNaN(tamanho) || tamanho <= 10 || tamanho > 300 || !concelho || !local || !tipoIsco || !tipoPeixe || !tipoPesca || !mare || !lua || !periodoDia || new Date(data) > new Date()) {
         exibirMensagem('error', 'Preencha todos os campos correctamente e use data válida!');
+        if (typeof abrirCondicoes === 'function') abrirCondicoes();
         return;
     }
 
     let capturas = obterCapturas();
     let novaCaptura = { data, peso, tamanho, local, tipoIsco, tipoPeixe, tipoPesca, mare, lua, periodoDia };
+    const eraEdicao = Boolean(idEdicaoAtual);
 
     if (idEdicaoAtual) {
         // Estamos a guardar uma edição: substitui o registo original em vez de o duplicar
@@ -111,7 +115,7 @@ function gravarCaptura() {
             capturas.push(novaCaptura);
         }
         idEdicaoAtual = null;
-        document.querySelector('.gravar button').innerHTML = '<i class="fas fa-save"></i> Gravar';
+        document.getElementById('botaoGravar').innerHTML = '<i class="fas fa-save"></i> Gravar';
     } else {
         novaCaptura.id = gerarIdCaptura();
         capturas.push(novaCaptura);
@@ -119,9 +123,16 @@ function gravarCaptura() {
 
     if (!guardarCapturas(capturas)) return;
 
-    setTimeout(atualizarLocaisOrdenados, 0);
     exibirMensagem('success', 'Registo gravado com sucesso!');
-    limparFormularioRegistro();
+    if (eraEdicao) {
+        limparFormularioRegistro();
+        atualizarLocaisOrdenados();
+        if (typeof aposGravarEdicao === 'function') aposGravarEdicao();
+    } else {
+        // Registo rápido: mantém local e condições, limpa só o que muda a cada peixe
+        limparCamposDaCaptura();
+        if (typeof aposGravarRapido === 'function') aposGravarRapido();
+    }
     preencherAnos();
 }
 
@@ -232,6 +243,19 @@ function importarDados(event) {
         event.target.value = "";
     };
     leitor.readAsText(ficheiro);
+}
+
+// Limpa só o que muda a cada peixe (espécie, peso, tamanho)
+function limparCamposDaCaptura() {
+    document.getElementById('tipoPeixe').selectedIndex = 0;
+    document.getElementById('peso').value = '';
+    document.getElementById('tamanho').value = '';
+}
+
+// Sai do modo de edição sem alterar nem apagar o registo original
+function cancelarEdicao() {
+    idEdicaoAtual = null;
+    document.getElementById('botaoGravar').innerHTML = '<i class="fas fa-save"></i> Gravar';
 }
 
 function limparFormularioRegistro() {
@@ -350,7 +374,7 @@ function editarCaptura(captura) {
     // Marca esta captura como "em edição" — só é substituída quando o utilizador
     // clicar em Gravar. Se sair sem gravar, o registo original mantém-se intacto.
     idEdicaoAtual = chaveCaptura(captura);
-    let botaoGravar = document.querySelector('.gravar button');
+    let botaoGravar = document.getElementById('botaoGravar');
     if (botaoGravar) botaoGravar.innerHTML = '<i class="fas fa-save"></i> Atualizar Registo';
 
     // Muda para o separador "Registo" para facilitar a edição
@@ -361,15 +385,6 @@ function limparTabelaCapturas() {
     const container = document.getElementById("containerCapturas");
     container.innerHTML = ""; // Remove toda a tabela
     document.getElementById("totaisAno").textContent = ""; // Limpa o texto dos totais
-}
-
-function limparAnalise() {
-    document.getElementById("resumoLocais").innerHTML = ""; // Limpa a tabela de resumo
-
-    if (window.myChart) {
-        window.myChart.destroy();
-        window.myChart = null;
-    }
 }
 
 function preencherAnos() {
@@ -426,6 +441,9 @@ function aplicarSecao(idSecao) {
   // O mapa só tem tamanho certo quando o ecrã está visível
   if (idSecao === 'mapa' && typeof aoMostrarMapa === 'function') {
     aoMostrarMapa();
+  }
+  if (idSecao === 'registo' && typeof aoMostrarRegisto === 'function') {
+    aoMostrarRegisto();
   }
   if (idSecao === 'inicio' && typeof inicioAtualizar === 'function') {
     inicioAtualizar();

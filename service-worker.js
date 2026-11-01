@@ -1,5 +1,5 @@
 // service-worker.js
-const CACHE_NAME = 'SeaFishing-cache-v15';
+const CACHE_NAME = 'SeaFishing-cache-v17';
 const urlsToCache = [
     '/',
     'index.html',
@@ -15,16 +15,14 @@ const urlsToCache = [
     'ícone/icon-512.png',
     'dados.js',
     'utils.js',
-    'resumo_local.js',
     'print1.js',
-    'print2.js',
-    'print3.js',
-    'print4.js',
+    'relatorios.js',
     'script.js',
     'locais.js',
     'analise_avancada.js',
     'mapa.js',
     'inicio.js',
+    'sugestoes.js',
     'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 

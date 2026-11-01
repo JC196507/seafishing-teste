@@ -14,8 +14,11 @@ function mapaDisponivel() {
 
 // ===== Funções puras (calculam, não mexem na página) =====
 
+// Abaixo de 1 kg mostra gramas ("850 g"); a partir de 1 kg mostra kg ("1,5 kg")
 function mapaFormatarKg(gramas) {
-    return (gramas / 1000).toLocaleString("pt-PT", { maximumFractionDigits: 2 }) + " kg";
+    let g = Number(gramas) || 0;
+    if (g >= 1000) return (g / 1000).toLocaleString("pt-PT", { maximumFractionDigits: 2 }) + " kg";
+    return Math.round(g).toLocaleString("pt-PT") + " g";
 }
 
 // { "Califa": { n, pesoTotal, pesoMedio, maior: {peso, tipoPeixe}|null, especieFreq }, ... }
@@ -29,12 +32,19 @@ function mapaCalcularStats(capturas) {
         s.n++;
         s.pesoTotal += peso;
         if (!s.maior || peso > s.maior.peso) s.maior = { peso, tipoPeixe: c.tipoPeixe };
-        if (c.tipoPeixe) s.especies[c.tipoPeixe] = (s.especies[c.tipoPeixe] || 0) + 1;
+        let especie = c.tipoPeixe || "Indefinido";
+        let e = s.especies[especie] || (s.especies[especie] = { n: 0, peso: 0 });
+        e.n++;
+        e.peso += peso;
     });
     Object.values(porLocal).forEach(s => {
         s.pesoMedio = s.n ? s.pesoTotal / s.n : 0;
-        let freq = Object.entries(s.especies).sort((a, b) => b[1] - a[1]);
-        s.especieFreq = freq.length ? freq[0][0] : null;
+        let lista = Object.entries(s.especies).map(([tipoPeixe, v]) => ({ tipoPeixe, n: v.n, peso: v.peso }));
+        // Espécie mais frequente: por número de capturas (em empate, a primeira registada)
+        let freq = lista.slice().sort((a, b) => b.n - a.n);
+        s.especieFreq = freq.length ? freq[0].tipoPeixe : null;
+        // Detalhe por espécie: das que mais pesam para as que menos pesam
+        s.porEspecie = lista.sort((a, b) => b.peso - a.peso || b.n - a.n);
         delete s.especies;
     });
     return porLocal;
@@ -176,6 +186,7 @@ function mapaDesenharMarcadores(stats, coords, ajustar) {
         marcador.on("click", () => {
             let sel = document.getElementById("mapaLocalSelect");
             if (sel) sel.value = n;
+            mapaMostrarDetalhe(n, false);
         });
         marcador.addTo(mapaCamada);
         mapaMarcadores[n] = marcador;
@@ -193,6 +204,32 @@ function mapaAtualizar(ajustar) {
     mapaPreencherSelect(stats, coords);
     mapaDesenharTabela(stats, coords);
     mapaDesenharMarcadores(stats, coords, ajustar);
+    if (mapaDetalheLocal) mapaMostrarDetalhe(mapaDetalheLocal, false);
+}
+
+// ===== Detalhe de um local: espécies apanhadas lá =====
+
+let mapaDetalheLocal = null;
+
+function mapaHtmlDetalhe(local, s, periodo) {
+    let titulo = `<h4 class="mapa-detalhe-titulo">${escaparHTML(local)} <small>${escaparHTML(periodo)}</small></h4>`;
+    if (!s) return titulo + '<p class="mapa-ajuda">Sem capturas neste período.</p>';
+    let linhas = s.porEspecie.map(e =>
+        `<div class="detalhe-linha"><span>${escaparHTML(e.tipoPeixe)}</span><span>${e.n} · ${mapaFormatarKg(e.peso)}</span></div>`
+    ).join("");
+    return titulo + `<p class="detalhe-total">${s.n} captura(s) · ${mapaFormatarKg(s.pesoTotal)}</p>` + linhas;
+}
+
+function mapaMostrarDetalhe(nome, rolar) {
+    mapaDetalheLocal = nome;
+    let el = document.getElementById("mapaDetalhe");
+    if (!el) return;
+    let stats = mapaCalcularStats(mapaCapturasFiltradas());
+    let sel = document.getElementById("mapaAno");
+    let ano = sel && sel.value ? sel.value : "";
+    el.innerHTML = mapaHtmlDetalhe(nome, stats[nome] || null, ano || "todos os anos");
+    el.style.display = "block";
+    if (rolar && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 // ===== Ciclo de vida =====
@@ -330,11 +367,13 @@ function mapaSelecionarLocal(nome) {
     if (sel) sel.value = nome;
     let c = obterCoordsLocais()[nome];
     if (mapaLeaflet && coordenadaValida(c)) {
+        mapaMostrarDetalhe(nome, false);
         mapaLeaflet.setView([c.lat, c.lng], Math.max(mapaLeaflet.getZoom(), 13));
         if (mapaMarcadores[nome]) mapaMarcadores[nome].openPopup();
         let cont = document.getElementById("mapaContainer");
-        if (cont && cont.scrollIntoView) cont.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (cont && cont.scrollIntoView) cont.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
+        mapaMostrarDetalhe(nome, true);   // sem posição: mostra só o detalhe
         mapaMensagem(`"${nome}" ainda não tem posição: usa "Tocar no mapa" ou o GPS.`, "aviso");
     }
 }

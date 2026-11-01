@@ -303,3 +303,250 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== Registo rápido ===== */
+.registo-grupo {
+    margin: 6px 0 0 0;
+    color: var(--cinza-500);
+    font-family: 'Inter', 'Open Sans', sans-serif;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.condicoes {
+    width: 100%;
+    margin-top: 12px;
+    padding: 0 12px 6px 12px;
+    background: var(--branco);
+    border: 1px solid var(--cinza-200);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+}
+
+.condicoes > summary {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 28px 12px 0;
+    cursor: pointer;
+    list-style: none;
+    position: relative;
+}
+
+.condicoes > summary::-webkit-details-marker {
+    display: none;
+}
+
+.condicoes > summary::after {
+    content: "▾";
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--azul-700);
+    font-size: 1.2em;
+    transition: transform 0.2s ease;
+}
+
+.condicoes:not([open]) > summary::after {
+    transform: translateY(-50%) rotate(-90deg);
+}
+
+.condicoes-titulo {
+    color: var(--azul-700);
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 600;
+}
+
+.condicoes-resumo {
+    color: var(--cinza-500);
+    font-size: 0.88em;
+    overflow-wrap: anywhere;
+}
+
+.botao-secundario {
+    background-color: var(--branco);
+    color: var(--azul-700);
+    border: 1px solid var(--azul-700);
+    box-shadow: none;
+}
+
+.botao-secundario:hover {
+    background-color: var(--azul-100);
+    color: var(--azul-900);
+}
+
+/* ===== Relatórios (ecrã próprio, pensado para o telemóvel) ===== */
+.relatorio {
+    font-size: 1rem;
+}
+
+.relatorio-titulo {
+    margin: 4px 0 2px 0;
+    font-size: 1.35em;
+}
+
+.relatorio-sub {
+    margin: 0 0 12px 0;
+    color: var(--cinza-500);
+    text-align: center;
+}
+
+.rel-ano {
+    margin: 22px 0 10px 0;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--terracota);
+    font-size: 1.2em;
+    text-align: left;
+}
+
+.rel-ano small {
+    display: block;
+    margin-top: 2px;
+    color: var(--cinza-500);
+    font-family: 'Inter', 'Open Sans', sans-serif;
+    font-size: 0.75em;
+    font-weight: 400;
+}
+
+.rel-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rel-cartao {
+    padding: 14px;
+    background: var(--branco);
+    border: 1px solid var(--cinza-200);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+}
+
+.rel-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.rel-nome,
+.rel-valor {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.rel-nome {
+    color: var(--azul-900);
+    overflow-wrap: anywhere;
+}
+
+.rel-valor {
+    color: var(--azul-700);
+    white-space: nowrap;
+}
+
+.rel-sub {
+    margin: 4px 0 0 0;
+    color: var(--cinza-900);
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+.rel-detalhes {
+    margin: 10px 0 0 0;
+    display: grid;
+    gap: 8px;
+}
+
+.rel-detalhes dt {
+    color: var(--cinza-500);
+    font-size: 0.85em;
+}
+
+.rel-detalhes dd {
+    margin: 0;
+    font-size: 1.05em;
+    font-weight: 500;
+}
+
+.rel-rank {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.rel-corpo {
+    flex: 1;
+    min-width: 0;
+}
+
+.rel-pos {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 2.6em;
+    height: 2.6em;
+    border-radius: 50%;
+    background: var(--azul-100);
+    color: var(--azul-900);
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: 1.05em;
+    font-weight: 700;
+}
+
+.rel-lista > .rel-rank:nth-child(-n+3) .rel-pos {
+    background: var(--terracota);
+    color: var(--branco);
+}
+
+.rel-total {
+    border-left: 4px solid var(--terracota);
+}
+
+/* ===== Detalhe de um local no mapa ===== */
+.mapa-detalhe {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: var(--branco);
+    border: 1px solid var(--cinza-200);
+    border-left: 4px solid var(--terracota);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+}
+
+.mapa-detalhe-titulo {
+    margin: 0 0 4px 0;
+    color: var(--azul-900);
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: 1.1em;
+}
+
+.mapa-detalhe-titulo small {
+    color: var(--cinza-500);
+    font-family: 'Inter', 'Open Sans', sans-serif;
+    font-weight: 400;
+}
+
+.detalhe-total {
+    margin: 0 0 6px 0;
+    color: var(--cinza-500);
+    font-size: 0.95em;
+}
+
+.detalhe-linha {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--cinza-200);
+    font-size: 1rem;
+}
+
+.detalhe-linha:last-child {
+    border-bottom: none;
+}

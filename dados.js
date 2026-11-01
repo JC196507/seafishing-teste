@@ -3,7 +3,7 @@
 // destas funções, nunca directamente no localStorage. Assim, trocar o
 // armazenamento (ex.: para IndexedDB) passa a mexer apenas neste ficheiro.
 
-const APP_VERSAO = "2.3";
+const APP_VERSAO = "2.5";
 const CHAVE_CAPTURAS = "capturas";
 const CHAVE_ULTIMO_BACKUP = "ultimoBackup";
 const CHAVE_COORDS = "locaisCoords";

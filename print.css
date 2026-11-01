@@ -1,5 +1,41 @@
 @media print {
-    button {
-        display: none;
+    /* Tudo o que é navegação desaparece; fica só o conteúdo do ecrã aberto */
+    button,
+    header,
+    nav,
+    footer,
+    .barra-voltar,
+    .message,
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        background: #ffffff;
+    }
+
+    .container {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    /* Relatórios em papel: duas colunas, sem partir um cartão a meio */
+    .rel-lista {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .rel-cartao {
+        box-shadow: none;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .rel-ano {
+        break-after: avoid;
     }
 }

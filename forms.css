@@ -177,11 +177,6 @@ button:active {
     margin-bottom: 15px;
 }
 
-#limparAnalise {
-    background-color: #d9a400;
-    color: #212529;
-}
-
 .consulta-capturas .registo-captura select#anoConsulta {
     padding: 8px;
     border: 1px solid var(--cinza-200);

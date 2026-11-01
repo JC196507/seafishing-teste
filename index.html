@@ -62,10 +62,10 @@
         <div id="registo" class="tab-content">
             <section class="registo-captura">
                 <h2>Registo de captura</h2>
+                <p class="mapa-ajuda">O local e as condições ficam guardados para a captura seguinte. Mudaste de sítio? Toca em «Nova saída».</p>
+
+                <h3 class="registo-grupo">Esta captura</h3>
                 <div class="form-grid">
-                    <div class="form-row">
-                        <input type="date" id="dataCaptura" placeholder="Data da Captura">
-                    </div>
                     <div class="form-row">
                         <select id="tipoPeixe">
                             <option value="">Seleccione o tipo de peixe</option>
@@ -88,6 +88,33 @@
                             <option value="Ruivo">Ruivo</option>
                             <option value="Sargo">Sargo</option>
                             <option value="Sarrajao">Sarrajão</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <input type="number" id="peso" placeholder="Peso (g)" step="1" min="101" max="100000">
+                    </div>
+                    <div class="form-row">
+                        <input type="number" id="tamanho" placeholder="Tamanho (cm)" step="1" min="11" max="300">
+                    </div>
+                </div>
+
+                <details id="condicoesSaida" class="condicoes" open>
+                    <summary>
+                        <span class="condicoes-titulo">Condições da saída</span>
+                        <span id="condicoesResumo" class="condicoes-resumo">Por preencher</span>
+                    </summary>
+                    <div class="form-grid">
+                    <div class="form-row">
+                        <input type="date" id="dataCaptura" placeholder="Data da Captura">
+                    </div>
+                    <div class="form-row">
+                        <select id="concelho">
+                            <option value="">Seleccione um concelho</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <select id="local">
+                            <option value="">Seleccione um local</option>
                         </select>
                     </div>
                     <div class="form-row">
@@ -149,25 +176,15 @@
                             <option value="Escurecer">Escurecer</option>
                         </select>
                     </div>
-                    <div class="form-row">
-                        <input type="number" id="peso" placeholder="Peso (g)" step="1" min="101" max="100000">
-                    </div>
-                    <div class="form-row">
-                        <input type="number" id="tamanho" placeholder="Tamanho (cm)" step="1" min="11" max="300">
-                    </div>
-                    <div class="form-row">
-                        <select id="concelho">
-                            <option value="">Seleccione um concelho</option>
-                        </select>
-                    </div>
-                    <div class="form-row">
-                        <select id="local">
-                            <option value="">Seleccione um local</option>
-                        </select>
-                    </div>
+                </div>
+                    <p class="mapa-ajuda">A lua e o período do dia são sugeridos pela data e hora de agora. Podes mudá-los.</p>
+                </details>
+
+                <div class="gravar">
+                    <button id="botaoGravar" onclick="gravarCaptura()"><i class="fas fa-save"></i> Gravar</button>
                 </div>
                 <div class="gravar">
-                    <button onclick="gravarCaptura()"><i class="fas fa-save"></i> Gravar</button>
+                    <button type="button" class="botao-secundario" onclick="novaSaida()"><i class="fas fa-rotate-left"></i> Nova saída (limpar tudo)</button>
                 </div>
             </section>
         </div>
@@ -182,9 +199,6 @@
 
                     <button onclick="consultarCapturas()">
                         <i class="fas fa-search"></i> Detalhe capturas ano seleccionado
-                    </button>
-                    <button onclick="consultarResumoPorLocal()">
-                        <i class="fas fa-chart-bar"></i> Capturas por Local-Ano
                     </button>
 					<button onclick="imprimirCapturas()">
                         <i class="fas fa-print"></i> Análise Global
@@ -202,9 +216,6 @@
         <div class="table-container" id="containerCapturas"></div>
 		<div class="table-container" id="analiseGlobal"></div>
 		<h3 id="totaisAno"></h3>
-		<div class="table-container">
-		<div id="resumoLocais"></div>
-		</div>
 
 		<!-- Botões de limpar organizados verticalmente com o mesmo espaçamento -->
 		<div class="gravar">
@@ -213,16 +224,21 @@
 		</button>
 		</div>
 		<div class="gravar">
-		<button id="limparAnalise" onclick="limparAnalise()">
-        <i class="fas fa-eraser"></i> Limpar Análise Local-Ano
-		</button>
-		</div>
-		<div class="gravar">
 		<button onclick="limparAnaliseGlobal()">
         <i class="fas fa-eraser"></i> Limpar Análise Global
 		</button>
 		</div>
 			</section>
+        </div>
+
+        <div id="relatorio" class="tab-content">
+            <section class="relatorio">
+                <div class="gravar no-print">
+                    <button type="button" onclick="imprimirRelatorio()"><i class="fas fa-print"></i> Imprimir / Guardar PDF</button>
+                </div>
+                <p class="mapa-ajuda no-print">Na janela de impressão do telemóvel, escolhe «Guardar como PDF» para exportares.</p>
+                <div id="relatorioConteudo"></div>
+            </section>
         </div>
 
         <div id="mapa" class="tab-content">
@@ -245,6 +261,7 @@
                 <div id="mapaContainer"></div>
                 <p class="mapa-legenda">Tamanho = nº de capturas · cor mais escura = valor mais alto · cinzento = sem capturas neste período.</p>
 
+                <div id="mapaDetalhe" class="mapa-detalhe" style="display:none"></div>
                 <div id="mapaEstado" class="estado-backup" style="display:none"></div>
 
                 <h3>Marcar a posição de um local</h3>
@@ -256,6 +273,7 @@
                 </div>
 
                 <h3>Locais com capturas</h3>
+                <p class="mapa-ajuda">Toca num local para veres as espécies que lá apanhaste.</p>
                 <p id="mapaResumo" class="mapa-ajuda"></p>
                 <div class="table-container">
                     <table>
@@ -358,15 +376,13 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="dados.js"></script>
     <script src="utils.js"></script>
-    <script src="resumo_local.js"></script>
     <script src="print1.js"></script>
-	<script src="print2.js"></script>
-	<script src="print3.js"></script>
-	<script src="print4.js"></script>
+    <script src="relatorios.js"></script>
 	<script src="script.js"></script>
     <script src="locais.js"></script>
     <script src="analise_avancada.js"></script>
     <script src="inicio.js"></script>
+    <script src="sugestoes.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="mapa.js"></script>
 </body>
