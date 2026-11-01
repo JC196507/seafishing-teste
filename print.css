@@ -1,5 +1,24 @@
+/* Formato do papel / PDF: tabelas largas em horizontal, a do ranking de spots na vertical */
+@page paisagem {
+    size: A4 landscape;
+    margin: 10mm;
+}
+
+@page retrato {
+    size: A4 portrait;
+    margin: 12mm;
+}
+
+.rel-paisagem {
+    page: paisagem;
+}
+
+.rel-retrato {
+    page: retrato;
+}
+
 @media print {
-    /* Tudo o que é navegação desaparece; fica só o conteúdo do ecrã aberto */
+    /* Tudo o que é navegação desaparece; fica só o relatório */
     button,
     header,
     nav,
@@ -14,7 +33,8 @@
         background: #ffffff;
     }
 
-    .container {
+    .container,
+    body.ecra-relatorio .container {
         max-width: none;
         margin: 0;
         padding: 0;
@@ -22,20 +42,35 @@
         border-radius: 0;
     }
 
-    /* Relatórios em papel: duas colunas, sem partir um cartão a meio */
-    .rel-lista {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
+    .rel-tabela-wrap {
+        border: none;
+        overflow: visible;
     }
 
-    .rel-cartao {
-        box-shadow: none;
+    .rel-tabela {
+        font-size: 10pt;
+    }
+
+    .rel-tabela th:nth-child(n),
+    .rel-tabela td:nth-child(n) {
+        padding: 4px 6px;
+        border: 1px solid #bbbbbb;
+    }
+
+    .rel-tabela thead {
+        display: table-header-group;   /* repete o cabeçalho em cada página */
+    }
+
+    .rel-tabela tr {
         break-inside: avoid;
         page-break-inside: avoid;
     }
 
-    .rel-ano {
+    .rel-tabela tbody tr:nth-child(even) td {
+        background-color: #f3f3f3;
+    }
+
+    .rel-subtitulo {
         break-after: avoid;
     }
 }

@@ -378,133 +378,115 @@
     color: var(--azul-900);
 }
 
-/* ===== Relatórios (ecrã próprio, pensado para o telemóvel) ===== */
-.relatorio {
-    font-size: 1rem;
-}
-
+/* ===== Relatórios: tabelas ajustadas ao ecrã do telemóvel ===== */
 .relatorio-titulo {
     margin: 4px 0 2px 0;
-    font-size: 1.35em;
+    font-size: 1.3em;
 }
 
 .relatorio-sub {
-    margin: 0 0 12px 0;
+    margin: 0 0 10px 0;
     color: var(--cinza-500);
     text-align: center;
 }
 
-.rel-ano {
-    margin: 22px 0 10px 0;
-    padding-bottom: 6px;
-    border-bottom: 2px solid var(--terracota);
-    font-size: 1.2em;
+/* Neste ecrã usa-se mais largura: menos margens à volta da tabela */
+body.ecra-relatorio .container {
+    padding: 10px 6px;
+}
+
+body.ecra-relatorio .tab-content {
+    padding: 0;
+}
+
+.rel-tabela-wrap {
+    overflow-x: auto;           /* só entra em acção se algum nome for mesmo enorme */
+    border: 1px solid var(--cinza-200);
+    border-radius: var(--raio-sm);
+    background: var(--branco);
+}
+
+.rel-tabela {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    table-layout: auto;
+    font-size: clamp(10.5px, 3.1vw, 15px);
+    line-height: 1.25;
+}
+
+/* Anula as regras gerais de tabela (colunas com % fixas e texto sem quebra) */
+.rel-tabela {
+    display: table;
+    white-space: normal;
+}
+
+.rel-tabela thead {
+    display: table-header-group;
+}
+
+.rel-tabela tbody {
+    display: table-row-group;
+}
+
+.rel-tabela th:nth-child(n),
+.rel-tabela td:nth-child(n) {
+    width: auto;
+    padding: 6px 2px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.rel-tabela th:nth-child(n) {
+    font-size: 0.92em;
+    font-weight: 600;
+    line-height: 1.15;
+}
+
+.rel-tabela td.rel-esq,
+.rel-tabela th.rel-esq {
     text-align: left;
 }
 
-.rel-ano small {
-    display: block;
-    margin-top: 2px;
-    color: var(--cinza-500);
-    font-family: 'Inter', 'Open Sans', sans-serif;
-    font-size: 0.75em;
-    font-weight: 400;
+.rel-tabela tbody tr:nth-child(even) td {
+    background-color: var(--azul-050);
 }
 
-.rel-lista {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.rel-cartao {
-    padding: 14px;
-    background: var(--branco);
-    border: 1px solid var(--cinza-200);
-    border-radius: var(--raio);
-    box-shadow: var(--sombra);
-}
-
-.rel-topo {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-}
-
-.rel-nome,
-.rel-valor {
-    font-family: 'Poppins', 'Inter', sans-serif;
-    font-size: 1.2em;
-    font-weight: 600;
-}
-
-.rel-nome {
-    color: var(--azul-900);
-    overflow-wrap: anywhere;
-}
-
-.rel-valor {
-    color: var(--azul-700);
-    white-space: nowrap;
-}
-
-.rel-sub {
-    margin: 4px 0 0 0;
-    color: var(--cinza-900);
-    font-size: 1rem;
-    line-height: 1.4;
-}
-
-.rel-detalhes {
-    margin: 10px 0 0 0;
-    display: grid;
-    gap: 8px;
-}
-
-.rel-detalhes dt {
+.rel-tabela small {
     color: var(--cinza-500);
     font-size: 0.85em;
 }
 
-.rel-detalhes dd {
-    margin: 0;
-    font-size: 1.05em;
-    font-weight: 500;
-}
-
-.rel-rank {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.rel-corpo {
-    flex: 1;
-    min-width: 0;
-}
-
-.rel-pos {
-    flex: 0 0 auto;
-    display: grid;
-    place-items: center;
-    width: 2.6em;
-    height: 2.6em;
-    border-radius: 50%;
+.rel-tabela tr.rel-sep td:nth-child(n) {
+    padding: 8px 6px;
     background: var(--azul-100);
     color: var(--azul-900);
-    font-family: 'Poppins', 'Inter', sans-serif;
-    font-size: 1.05em;
     font-weight: 700;
+    text-align: left;
 }
 
-.rel-lista > .rel-rank:nth-child(-n+3) .rel-pos {
-    background: var(--terracota);
-    color: var(--branco);
+.rel-tabela tr.rel-total td:nth-child(n) {
+    background: var(--terracota-bg);
+    font-weight: 700;
+    border-top: 2px solid var(--terracota);
 }
 
-.rel-total {
-    border-left: 4px solid var(--terracota);
+.rel-subtitulo {
+    margin: 18px 0 8px 0;
+    text-align: left;
+    font-size: 1.05em;
+}
+
+.rel-nota {
+    margin: 6px 2px 0 2px;
+    color: var(--cinza-500);
+    font-size: 0.85em;
+}
+
+.rel-t-analise td:nth-child(3) {
+    white-space: nowrap;
 }
 
 /* ===== Detalhe de um local no mapa ===== */

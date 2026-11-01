@@ -431,6 +431,9 @@ function aplicarSecao(idSecao) {
     secaoMostrar.classList.add('active');
   }
   secaoAtual = idSecao;
+  if (document.body && document.body.classList) {
+    document.body.classList.toggle('ecra-relatorio', idSecao === 'relatorio');
+  }
 
   // A barra "Início" só aparece fora do ecrã inicial
   const barra = document.getElementById('barraVoltar');

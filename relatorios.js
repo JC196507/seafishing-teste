@@ -6,18 +6,23 @@
 
 const REL_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+const REL_MESES_CURTO = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+    "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
 // ===== Funções de apoio (puras) =====
 
-// Abaixo de 1 kg mostra gramas ("850 g"); a partir de 1 kg mostra kg ("1,5 kg")
-function relFormatarPeso(gramas) {
-    let g = Number(gramas) || 0;
-    if (g >= 1000) return (g / 1000).toLocaleString("pt-PT", { maximumFractionDigits: 2 }) + " kg";
-    return Math.round(g).toLocaleString("pt-PT") + " g";
+// Gramas com separador de milhares, como nos relatórios antigos (1.500)
+function relGramas(gramas) {
+    return (Number(gramas) || 0).toLocaleString("pt-BR");
 }
 
 function relNomeMes(mm) {
     return REL_MESES[Number(mm) - 1] || String(mm);
+}
+
+// Mês abreviado para caber nas tabelas do telemóvel ("Set")
+function relMesCurto(mm) {
+    return REL_MESES_CURTO[Number(mm) - 1] || String(mm);
 }
 
 // Mais frequente de um objeto { chave: contagem }. Em empate fica a última chave
@@ -144,71 +149,83 @@ function relTop25(capturas) {
     };
 }
 
-// ===== Apresentação (HTML) =====
+// ===== Apresentação (HTML): tabelas ajustadas ao ecrã =====
 
 function relE(texto) {
     return escaparHTML(String(texto === undefined || texto === null ? "" : texto));
 }
 
+// <thead> + <tbody>. 'classe' identifica a tabela no CSS; 'orientacao' escolhe o formato do papel.
+function relTabela(classe, cabecalhos, corpo) {
+    return `<div class="rel-tabela-wrap"><table class="rel-tabela ${classe}">` +
+        "<thead><tr>" + cabecalhos.map(h => `<th>${h}</th>`).join("") + "</tr></thead>" +
+        `<tbody>${corpo}</tbody></table></div>`;
+}
+
 function relHtmlResumoAnoEspecie(r) {
-    let html = "";
+    let par = f => f ? `${relE(f.chave)} (${f.n})` : "—";
+    let corpo = "";
     r.anos.forEach(a => {
-        html += `<h3 class="rel-ano">${relE(a.ano)} <small>${a.n} capturas · ${relFormatarPeso(a.peso)}</small></h3>`;
-        html += '<div class="rel-lista">';
+        corpo += `<tr class="rel-sep"><td colspan="6">${relE(a.ano)} · ${a.n} capturas · ${relGramas(a.peso)} g</td></tr>`;
         a.especies.forEach(e => {
-            let tam = e.tamanhoMedio === null ? "" : ` · tamanho médio ${e.tamanhoMedio.toLocaleString("pt-PT", { maximumFractionDigits: 1 })} cm`;
-            let par = f => f ? `${relE(f.chave)} (${f.n})` : "—";
-            html += '<article class="rel-cartao">' +
-                `<div class="rel-topo"><span class="rel-nome">${relE(e.especie)}</span><span class="rel-valor">${relFormatarPeso(e.peso)}</span></div>` +
-                `<p class="rel-sub">${e.n} captura(s)${tam}</p>` +
-                '<dl class="rel-detalhes">' +
-                `<div><dt>Mais pesado</dt><dd>${relFormatarPeso(e.maior.peso)} · ${relE(e.maior.local)}</dd></div>` +
-                `<div><dt>Mês com mais capturas</dt><dd>${e.mes ? `${relE(relNomeMes(e.mes.chave))} (${e.mes.n})` : "—"}</dd></div>` +
-                `<div><dt>Local com mais capturas</dt><dd>${par(e.local)}</dd></div>` +
-                `<div><dt>Isco mais usado</dt><dd>${par(e.isco)}</dd></div>` +
-                "</dl></article>";
+            // Mês, local e isco mais frequentes ficam empilhados numa só coluna para a tabela caber no ecrã
+            let frequentes =
+                `<small>Mês</small> ${e.mes ? `${relMesCurto(e.mes.chave)} (${e.mes.n})` : "—"}<br>` +
+                `<small>Local</small> ${par(e.local)}<br>` +
+                `<small>Isco</small> ${par(e.isco)}`;
+            corpo += "<tr>" +
+                `<td class="rel-esq">${relE(e.especie)}</td>` +
+                `<td>${e.n}</td>` +
+                `<td>${relGramas(e.peso)}</td>` +
+                `<td>${relGramas(e.maior.peso)}<br><small>${relE(e.maior.local)}</small></td>` +
+                `<td>${e.tamanhoMedio === null ? "—" : e.tamanhoMedio.toFixed(1)}</td>` +
+                `<td class="rel-esq">${frequentes}</td>` +
+                "</tr>";
         });
-        html += "</div>";
     });
-    html += '<div class="rel-lista"><article class="rel-cartao rel-total">' +
-        `<div class="rel-topo"><span class="rel-nome">Total geral</span><span class="rel-valor">${relFormatarPeso(r.total.peso)}</span></div>` +
-        `<p class="rel-sub">${r.total.n} capturas</p></article></div>`;
-    return html;
+    corpo += `<tr class="rel-total"><td class="rel-esq">Total</td><td>${r.total.n}</td><td>${relGramas(r.total.peso)}</td><td colspan="3"></td></tr>`;
+    return relTabela("rel-t-geral",
+        ["Espécie", "Total", "Peso total (g)", "Mais pesado (g)", "Tam. médio (cm)", "Mais frequente"], corpo) +
+        '<p class="rel-nota">Mais frequente: o mês, o local e o isco com mais capturas (entre parênteses, quantas).</p>';
 }
 
 function relHtmlRankingSpots(lista) {
-    return '<div class="rel-lista">' + lista.map((l, i) =>
-        '<article class="rel-cartao rel-rank">' +
-        `<span class="rel-pos">${i + 1}</span>` +
-        '<div class="rel-corpo">' +
-        `<div class="rel-topo"><span class="rel-nome">${relE(l.local)}</span><span class="rel-valor">${l.quantidade}</span></div>` +
-        `<p class="rel-sub">${l.quantidade === 1 ? "1 peixe" : l.quantidade + " peixes"} · ${relFormatarPeso(l.pesoTotal)}</p>` +
-        `<p class="rel-sub">Maior: ${relE(l.maior.tipoPeixe)} · ${relFormatarPeso(l.maior.peso)}</p>` +
-        "</div></article>").join("") + "</div>";
+    let corpo = lista.map((l, i) =>
+        "<tr>" +
+        `<td>${i + 1}</td>` +
+        `<td class="rel-esq">${relE(l.local)}</td>` +
+        `<td>${l.quantidade}</td>` +
+        `<td>${relGramas(l.pesoTotal)}</td>` +
+        `<td class="rel-esq">${relE(l.maior.tipoPeixe)}<br><small>${relGramas(l.maior.peso)} g</small></td>` +
+        "</tr>").join("");
+    return relTabela("rel-t-spots", ["#", "Local", "Peixes", "Peso total (g)", "Peixe mais pesado"], corpo);
 }
 
 function relHtmlTop25(r) {
-    let html = '<div class="rel-lista">' + r.itens.map(c =>
-        '<article class="rel-cartao rel-rank">' +
-        `<span class="rel-pos">${c.pos}</span>` +
-        '<div class="rel-corpo">' +
-        `<div class="rel-topo"><span class="rel-nome">${relE(c.tipoPeixe)}</span><span class="rel-valor">${relFormatarPeso(c.peso)}</span></div>` +
-        `<p class="rel-sub">${relE(c.tamanho)} cm · ${relE(c.mes)} ${relE(c.ano)}</p>` +
-        `<p class="rel-sub">${relE(c.local)} · ${relE(c.isco)}</p>` +
-        "</div></article>").join("") + "</div>";
+    let corpo = r.itens.map(c =>
+        "<tr>" +
+        `<td>${c.pos}</td>` +
+        `<td class="rel-esq">${relE(c.tipoPeixe)}</td>` +
+        `<td>${relGramas(c.peso)}</td>` +
+        `<td>${relE(c.tamanho)}</td>` +
+        `<td>${relMesCurto(c.data.substring(5, 7))} ${relE(c.ano)}</td>` +
+        `<td class="rel-esq">${relE(c.local)}</td>` +
+        `<td class="rel-esq">${relE(c.isco)}</td>` +
+        "</tr>").join("");
+    let html = relTabela("rel-t-top", ["#", "Espécie", "Peso (g)", "cm", "Mês/Ano", "Local", "Isco"], corpo);
 
     let s = r.resumo;
-    let linha = (rotulo, valor) => `<div><dt>${rotulo}</dt><dd>${valor}</dd></div>`;
-    html += '<h3 class="rel-ano">O que dizem estes ' + r.total + ' peixes</h3>' +
-        '<article class="rel-cartao"><dl class="rel-detalhes">' +
-        linha("Ano com mais capturas", `${relE(s.anoFreq.nome)} (${s.anoFreq.pct})`) +
-        linha("Ano com capturas mais pesadas", `${relE(s.anoPesado.nome)} (${relFormatarPeso(s.anoPesado.peso)})`) +
-        linha("Mês com mais capturas", `${relE(s.mesFreq.nome)} (${s.mesFreq.pct})`) +
-        linha("Mês com capturas mais pesadas", `${relE(s.mesPesado.nome)} (${relFormatarPeso(s.mesPesado.peso)})`) +
-        linha("Local com mais capturas", `${relE(s.localFreq.nome)} (${s.localFreq.pct})`) +
-        linha("Local com capturas mais pesadas", `${relE(s.localPesado.nome)} (${relFormatarPeso(s.localPesado.peso)})`) +
-        linha("Isco mais usado", `${relE(s.iscoFreq.nome)} (${s.iscoFreq.pct})`) +
-        "</dl></article>";
+    let linha = (rotulo, nome, extra) => `<tr><td class="rel-esq">${rotulo}</td><td class="rel-esq">${relE(nome)}</td><td>${relE(extra)}</td></tr>`;
+    let analise =
+        linha("Ano com mais capturas", s.anoFreq.nome, s.anoFreq.pct) +
+        linha("Ano com capturas mais pesadas", s.anoPesado.nome, relGramas(s.anoPesado.peso) + " g") +
+        linha("Mês com mais capturas", s.mesFreq.nome, s.mesFreq.pct) +
+        linha("Mês com capturas mais pesadas", s.mesPesado.nome, relGramas(s.mesPesado.peso) + " g") +
+        linha("Local com mais capturas", s.localFreq.nome, s.localFreq.pct) +
+        linha("Local com capturas mais pesadas", s.localPesado.nome, relGramas(s.localPesado.peso) + " g") +
+        linha("Isco mais usado", s.iscoFreq.nome, s.iscoFreq.pct);
+    html += `<h3 class="rel-subtitulo">Análise destes ${r.total} peixes</h3>` +
+        relTabela("rel-t-analise", ["Indicador", "Resultado", "Valor"], analise);
     return html;
 }
 
@@ -216,12 +233,15 @@ function relHtmlTop25(r) {
 
 let relatorioTituloAtual = "";
 
-function abrirRelatorio(titulo, subtitulo, corpoHtml) {
+// orientacao: "paisagem" (tabelas largas) ou "retrato"; só afeta o papel / PDF
+function abrirRelatorio(titulo, subtitulo, corpoHtml, orientacao) {
     relatorioTituloAtual = titulo;
     let el = document.getElementById("relatorioConteudo");
     if (!el) return;
-    el.innerHTML = `<h2 class="relatorio-titulo">${relE(titulo)}</h2>` +
-        (subtitulo ? `<p class="relatorio-sub">${relE(subtitulo)}</p>` : "") + corpoHtml;
+    el.innerHTML = `<div class="rel-${orientacao || "retrato"}">` +
+        `<h2 class="relatorio-titulo">${relE(titulo)}</h2>` +
+        (subtitulo ? `<p class="relatorio-sub">${relE(subtitulo)}</p>` : "") +
+        corpoHtml + "</div>";
     mostrarSecao("relatorio");
 }
 
@@ -252,20 +272,20 @@ function relProteger(titulo, fn) {
 window.abrirResumoGeral = function () {
     relProteger("Capturas por espécie e ano", capturas => {
         let r = relResumoAnoEspecie(capturas);
-        abrirRelatorio("Capturas por espécie e ano", `${r.total.n} capturas em ${r.anos.length} ano(s)`, relHtmlResumoAnoEspecie(r));
+        abrirRelatorio("Capturas por espécie e ano", `${r.total.n} capturas em ${r.anos.length} ano(s)`, relHtmlResumoAnoEspecie(r), "paisagem");
     });
 };
 
 window.gerarRankingLocais = function () {
     relProteger("Ranking dos spots", capturas => {
         let lista = relRankingSpots(capturas);
-        abrirRelatorio("Ranking dos spots", `${lista.length} locais, por número de peixes`, relHtmlRankingSpots(lista));
+        abrirRelatorio("Ranking dos spots", `${lista.length} locais, por número de peixes`, relHtmlRankingSpots(lista), "retrato");
     });
 };
 
 window.abrirRankingMaioresPeixes = function () {
     relProteger("Os maiores peixes", capturas => {
         let r = relTop25(capturas);
-        abrirRelatorio(`Os ${r.total} maiores peixes`, "Por peso", relHtmlTop25(r));
+        abrirRelatorio(`Os ${r.total} maiores peixes`, "Por peso", relHtmlTop25(r), "paisagem");
     });
 };
