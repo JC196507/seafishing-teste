@@ -3,10 +3,11 @@
 // destas funções, nunca directamente no localStorage. Assim, trocar o
 // armazenamento (ex.: para IndexedDB) passa a mexer apenas neste ficheiro.
 
-const APP_VERSAO = "2.6";
+const APP_VERSAO = "2.7";
 const CHAVE_CAPTURAS = "capturas";
 const CHAVE_ULTIMO_BACKUP = "ultimoBackup";
 const CHAVE_COORDS = "locaisCoords";
+const CHAVE_GRADES = "grades";
 
 function obterCapturas() {
     let bruto = null;
@@ -91,6 +92,38 @@ function filtrarCoordsImportadas(coordsImp, nomesValidos) {
     return limpas;
 }
 
+// ===== Grades: saídas de pesca sem capturas =====
+// Guardadas À PARTE das capturas, para nenhuma contagem ou peso das capturas mudar.
+// Cada grade: { id, data, local, tipoPesca, tipoIsco, mare, lua, periodoDia }
+function obterGrades() {
+    let bruto = null;
+    try {
+        bruto = localStorage.getItem(CHAVE_GRADES);
+        if (!bruto) return [];
+        let dados = JSON.parse(bruto);
+        return Array.isArray(dados) ? dados : [];
+    } catch (erro) {
+        console.error("Grades ilegíveis no armazenamento:", erro);
+        try {
+            if (bruto) localStorage.setItem(CHAVE_GRADES + "_corrompido_" + Date.now(), bruto);
+        } catch (e) { /* sem espaço: nada a fazer */ }
+        return [];
+    }
+}
+
+function guardarGrades(lista) {
+    try {
+        localStorage.setItem(CHAVE_GRADES, JSON.stringify(lista));
+        return true;
+    } catch (erro) {
+        console.error("Falha ao gravar grades:", erro);
+        if (typeof exibirMensagem === "function") {
+            exibirMensagem("error", "Não foi possível gravar a grade (armazenamento cheio?). Faz um backup já!");
+        }
+        return false;
+    }
+}
+
 // ===== Registo do último backup =====
 function registarBackup() {
     try {
@@ -143,4 +176,6 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarEstadoBackup();
     let v = document.getElementById("versaoApp");
     if (v) v.textContent = APP_VERSAO;
+    let rodape = document.getElementById("rodapeVersao");
+    if (rodape) rodape.textContent = "v" + APP_VERSAO;
 });

@@ -150,10 +150,11 @@ function chaveCaptura(c) {
 function exportarDados() {
     let conteudo = JSON.stringify({
         formato: "pesca-ludica-backup",
-        versao: 2,
+        versao: 3,
         exportadoEm: new Date().toISOString(),
         capturas: obterCapturas(),
-        locaisCoords: obterCoordsLocais()
+        locaisCoords: obterCoordsLocais(),
+        grades: obterGrades()
     });
     let blob = new Blob([conteudo], { type: "application/json" });
     let url = URL.createObjectURL(blob);
@@ -197,11 +198,15 @@ function importarDados(event) {
             let bruto = JSON.parse(e.target.result);
             let dadosImportados;
             let coordsImportadas = null; // só existe em backups do formato novo
+            let gradesImportadas = null;  // só existe em backups com grades
             if (Array.isArray(bruto)) {
                 dadosImportados = bruto; // formato antigo: só capturas
             } else if (bruto && Array.isArray(bruto.capturas)) {
                 dadosImportados = bruto.capturas;
                 coordsImportadas = filtrarCoordsImportadas(bruto.locaisCoords, todosOsNomesDeLocais());
+                if (Array.isArray(bruto.grades) && typeof filtrarGradesImportadas === 'function') {
+                    gradesImportadas = filtrarGradesImportadas(bruto.grades, todosOsNomesDeLocais());
+                }
             } else {
                 throw new Error("Formato inválido");
             }
@@ -231,6 +236,15 @@ function importarDados(event) {
                 if (guardarCoordsLocais(combinadasCoords)) {
                     let n = Object.keys(combinadasCoords).length;
                     if (n) exibirMensagem('success', `Posições dos locais no mapa: ${n}.`);
+                }
+            }
+
+            if (gradesImportadas) {
+                if (modo === "substituir") {
+                    if (guardarGrades(gradesImportadas)) exibirMensagem('success', `${gradesImportadas.length} grade(s) importada(s).`);
+                } else {
+                    let juntas = juntarGrades(obterGrades(), gradesImportadas);
+                    if (juntas.adicionadas && guardarGrades(juntas.finais)) exibirMensagem('success', `${juntas.adicionadas} grade(s) nova(s) importada(s).`);
                 }
             }
 

@@ -27,6 +27,12 @@
     margin-top: 12px;
 }
 
+/* Um contentor ainda sem conteúdo (resultados por gerar) não deve aparecer como uma caixa vazia */
+.table-container:empty,
+#totaisAno:empty {
+    display: none;
+}
+
 .chart-container {
     width: 100%;
     height: auto;
@@ -531,4 +537,17 @@ body.ecra-relatorio .tab-content {
 
 .detalhe-linha:last-child {
     border-bottom: none;
+}
+
+/* Botão de apagar numa linha de tabela */
+.botao-pequeno {
+    padding: 4px 9px;
+    background-color: var(--vermelho);
+    box-shadow: none;
+    font-size: 0.95em;
+    line-height: 1;
+}
+
+.botao-pequeno:hover {
+    background-color: #8f2230;
 }

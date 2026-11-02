@@ -158,7 +158,7 @@ function relE(texto) {
 // <thead> + <tbody>. 'classe' identifica a tabela no CSS; 'orientacao' escolhe o formato do papel.
 function relTabela(classe, cabecalhos, corpo) {
     return `<div class="rel-tabela-wrap"><table class="rel-tabela ${classe}">` +
-        "<thead><tr>" + cabecalhos.map(h => `<th>${h}</th>`).join("") + "</tr></thead>" +
+        "<thead><tr>" + cabecalhos.map(h => typeof h === "object" ? `<th class="${h.c}">${h.t}</th>` : `<th>${h}</th>`).join("") + "</tr></thead>" +
         `<tbody>${corpo}</tbody></table></div>`;
 }
 
