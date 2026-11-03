@@ -72,12 +72,21 @@ footer p {
 }
 
 .message {
+    /* Fixa no topo do ecrã: vê-se sempre, mesmo com a página rolada para baixo */
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3000;
+    width: calc(100% - 24px);
+    max-width: 560px;
+    margin: 0;
     padding: 14px 18px;
     border-radius: var(--raio-sm);
-    margin: 15px auto;
+    box-shadow: var(--sombra-forte);
     display: none;
-    max-width: 800px;
     font-weight: 500;
+    line-height: 1.35;
 }
 
 .message.success {

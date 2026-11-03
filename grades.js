@@ -1,14 +1,21 @@
 // grades.js
-// "Grade": saída de pesca SEM capturas.
-// Só com as saídas sem peixe é que se percebe a taxa de sucesso (sem elas só se vê
-// o que correu bem). As grades ficam guardadas à parte das capturas (ver dados.js),
+// "Grade": saída de pesca SEM capturas (ir pescar e não tirar peixe).
+// Só com as saídas sem peixe é que se percebe a taxa de sucesso: sem elas só se vê
+// o que correu bem. As grades ficam guardadas à parte das capturas (ver dados.js),
 // por isso nenhum relatório ou contagem das capturas muda por causa delas.
 //
-// Regra de contagem: uma SAÍDA = um dia num local.
-//  - Se nesse dia e local houver capturas, a saída é "com capturas" e qualquer grade
-//    registada para o mesmo dia e local deixa de contar.
-//  - A taxa de grade só conta a partir da data da 1.ª grade válida: as saídas sem
-//    capturas anteriores nunca foram registadas e enviesariam o resultado.
+// Como tudo se liga (todas as saídas na mesma conta):
+//  - Uma SAÍDA = um dia num local. Cada dia+local com capturas é uma saída "com
+//    capturas" (todas as capturas antigas contam); cada grade é uma saída sem capturas.
+//  - Se nesse dia e local houver capturas, qualquer grade para o mesmo dia e local
+//    deixa de contar (seria uma contradição).
+//  - Sucesso = saída com pelo menos uma captura. Taxa de sucesso = saídas com capturas / saídas.
+//  - Só se contam as saídas a partir da data da 1.ª grade válida: as saídas sem capturas
+//    anteriores nunca foram registadas e a taxa ficaria enviesada para cima.
+//  - As condições (maré, lua, período, técnica, isco) de uma saída com capturas são as da
+//    1.ª captura desse dia e local; as de uma grade são as que registaste nela.
+
+const GRADE_MIN_SAIDAS = 5;   // abaixo disto uma linha ainda diz pouco
 
 function gradeChaveSaida(x) {
     return `${x.data}|${x.local}`;
@@ -31,8 +38,33 @@ function gradesValidas(capturas, grades) {
     return grades.filter(g => !comCapturas.has(gradeChaveSaida(g)));
 }
 
-function gradePct(grades, saidas) {
-    return saidas ? ((grades / saidas) * 100).toFixed(1) + "%" : "—";
+function gradeFmtPct(parte, total) {
+    return total ? ((parte / total) * 100).toLocaleString("pt-PT", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%" : "—";
+}
+
+function gradeFmtMedia(soma, n) {
+    return n ? (soma / n).toLocaleString("pt-PT", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : "—";
+}
+
+// Todas as saídas (com capturas e sem elas) numa só lista, uma por dia e local.
+function saidasConstruir(capturas, grades) {
+    let mapa = new Map();
+    capturas.forEach(c => {
+        if (!c.data) return;
+        let chave = gradeChaveSaida(c);
+        let s = mapa.get(chave);
+        if (!s) {
+            s = { chave, data: c.data, local: c.local, comCapturas: true, nCapturas: 0,
+                cond: { mare: c.mare, lua: c.lua, periodoDia: c.periodoDia, tipoPesca: c.tipoPesca, tipoIsco: c.tipoIsco } };
+            mapa.set(chave, s);
+        }
+        s.nCapturas++;
+    });
+    gradesValidas(capturas, grades).forEach(g => {
+        mapa.set(gradeChaveSaida(g), { chave: gradeChaveSaida(g), data: g.data, local: g.local, comCapturas: false, nCapturas: 0,
+            cond: { mare: g.mare, lua: g.lua, periodoDia: g.periodoDia, tipoPesca: g.tipoPesca, tipoIsco: g.tipoIsco } });
+    });
+    return Array.from(mapa.values());
 }
 
 // Devolve null se ainda não há nenhuma grade válida.
@@ -41,26 +73,48 @@ function gradesResumo(capturas, grades) {
     if (!validas.length) return null;
 
     let desde = validas.map(g => g.data).sort()[0];
-    let saidas = {};
-    capturas.forEach(c => {
-        if (c.data && c.data >= desde) saidas[gradeChaveSaida(c)] = { ano: c.data.slice(0, 4), grade: false };
-    });
-    validas.forEach(g => {
-        saidas[gradeChaveSaida(g)] = { ano: g.data.slice(0, 4), grade: true };
-    });
+    let saidas = saidasConstruir(capturas, grades).filter(s => s.data >= desde);
 
     let porAno = {};
-    Object.values(saidas).forEach(s => {
-        let a = porAno[s.ano] || (porAno[s.ano] = { ano: s.ano, saidas: 0, comCapturas: 0, grades: 0 });
+    saidas.forEach(s => {
+        let ano = s.data.slice(0, 4);
+        let a = porAno[ano] || (porAno[ano] = { ano, saidas: 0, comCapturas: 0, grades: 0 });
         a.saidas++;
-        if (s.grade) a.grades++; else a.comCapturas++;
+        if (s.comCapturas) a.comCapturas++; else a.grades++;
     });
     let anos = Object.values(porAno).sort((a, b) => a.ano.localeCompare(b.ano))
-        .map(a => ({ ...a, pct: gradePct(a.grades, a.saidas) }));
+        .map(a => ({ ...a, pct: gradeFmtPct(a.comCapturas, a.saidas) }));
     let total = anos.reduce((t, a) => ({ saidas: t.saidas + a.saidas, comCapturas: t.comCapturas + a.comCapturas, grades: t.grades + a.grades }),
         { saidas: 0, comCapturas: 0, grades: 0 });
-    total.pct = gradePct(total.grades, total.saidas);
-    return { desde, anos, total };
+    total.pct = gradeFmtPct(total.comCapturas, total.saidas);
+    return { desde, anos, total, saidas };
+}
+
+const GRADE_DIMENSOES = [
+    ["Local", "local", null],
+    ["Maré", "mare", "mare"],
+    ["Fase da lua", "lua", "lua"],
+    ["Período do dia", "periodoDia", "periodoDia"],
+    ["Técnica de pesca", "tipoPesca", "tipoPesca"],
+    ["Isco", "tipoIsco", "tipoIsco"]
+];
+
+// Taxa de sucesso por condição, a partir da lista de saídas (já filtrada pelo "desde").
+function gradesPorCondicao(saidas) {
+    return GRADE_DIMENSOES.map(([titulo, campo, select]) => {
+        let grupos = {};
+        saidas.forEach(s => {
+            let valor = (campo === "local" ? s.local : s.cond[campo]) || "Indefinido";
+            let g = grupos[valor] || (grupos[valor] = { valor, saidas: 0, comCapturas: 0, grades: 0, nCapturas: 0 });
+            g.saidas++;
+            g.nCapturas += s.nCapturas;
+            if (s.comCapturas) g.comCapturas++; else g.grades++;
+        });
+        let linhas = Object.values(grupos)
+            .map(g => ({ ...g, pct: gradeFmtPct(g.comCapturas, g.saidas), porSaida: gradeFmtMedia(g.nCapturas, g.saidas) }))
+            .sort((a, b) => b.saidas - a.saidas || a.valor.localeCompare(b.valor));
+        return { titulo, campo, select, linhas };
+    });
 }
 
 // ===== Backup: só entra o que for válido =====
@@ -115,16 +169,14 @@ function registarGrade() {
     }
     if (typeof aplicarSugestoesRegisto === "function") aplicarSugestoesRegisto();
 
-    let v = id => document.getElementById(id).value;
-    let concelho = v("concelho");
-    let g = { data: v("dataCaptura"), local: v("local"), tipoPesca: v("tipoPesca"), tipoIsco: v("tipoIsco"),
-        mare: v("mare"), lua: v("lua"), periodoDia: v("periodoDia") };
-
-    if (!concelho || Object.values(g).some(x => !x) || new Date(g.data) > new Date()) {
-        exibirMensagem("error", "Para registar uma grade preenche as condições da saída (data, local, pesca, isco, maré, lua e período) e usa uma data válida.");
-        if (typeof abrirCondicoes === "function") abrirCondicoes();
+    let problemas = problemasDoRegisto(ORDEM_CAMPOS_GRADE);
+    if (problemas.faltam.length || problemas.erros.length) {
+        mostrarProblemas(problemas, ORDEM_CAMPOS_GRADE);
         return;
     }
+    let v = id => document.getElementById(id).value;
+    let g = { data: v("dataCaptura"), local: v("local"), tipoPesca: v("tipoPesca"), tipoIsco: v("tipoIsco"),
+        mare: v("mare"), lua: v("lua"), periodoDia: v("periodoDia") };
 
     let chave = gradeChaveSaida(g);
     if (obterCapturas().some(c => c.data && gradeChaveSaida(c) === chave)) {
@@ -164,9 +216,21 @@ function gradeHtml(capturas, grades) {
         if (r.anos.length > 1) {
             corpo += `<tr class="rel-total"><td>Total</td><td>${r.total.saidas}</td><td>${r.total.comCapturas}</td><td>${r.total.grades}</td><td>${r.total.pct}</td></tr>`;
         }
-        html += `<h3 class="rel-subtitulo">Taxa de grade desde ${gradeFormatarData(r.desde)}</h3>` +
-            relTabela("rel-t-grades-resumo", ["Ano", "Saídas", "Com capturas", "Grades", "% grade"], corpo) +
-            '<p class="rel-nota">Uma saída = um dia num local. Só conta a partir da 1.ª grade registada, porque as saídas sem capturas anteriores não ficaram registadas.</p>';
+        html += `<h3 class="rel-subtitulo">Taxa de sucesso desde ${gradeFormatarData(r.desde)}</h3>` +
+            relTabela("rel-t-grades-resumo", ["Ano", "Saídas", "Com capturas", "Grades", "% sucesso"], corpo) +
+            '<p class="rel-nota">Saída = um dia num local. Sucesso = saída com pelo menos 1 captura. Só conta a partir da 1.ª grade registada, porque as saídas sem capturas anteriores não ficaram registadas.</p>';
+
+        html += '<h3 class="rel-subtitulo">Taxa de sucesso por condição</h3>' +
+            '<p class="rel-nota">Nas saídas com capturas, as condições são as da 1.ª captura desse dia e local. «Capt./saída» é a média de capturas por saída, com as grades a contar zero. Linhas a cinzento têm menos de ' + GRADE_MIN_SAIDAS + ' saídas: ainda dizem pouco.</p>';
+        gradesPorCondicao(r.saidas).forEach(d => {
+            let linhas = d.linhas.map(l => {
+                let nome = d.select ? gradeRotulo(d.select, l.valor) : l.valor;
+                return `<tr${l.saidas < GRADE_MIN_SAIDAS ? ' class="rel-poucos"' : ""}>` +
+                    `<td class="rel-esq">${relE(nome)}</td><td>${l.saidas}</td><td>${l.grades}</td><td>${l.pct}</td><td>${l.porSaida}</td></tr>`;
+            }).join("");
+            html += `<div class="rel-bloco"><h3 class="rel-subtitulo">${relE(d.titulo)}</h3>` +
+                relTabela("rel-t-grades-cond", [relE(d.titulo), "Saídas", "Grades", "% sucesso", "Capt./saída"], linhas) + "</div>";
+        });
     }
 
     let comCapturas = new Set(capturas.filter(c => c.data).map(gradeChaveSaida));
@@ -186,7 +250,7 @@ function gradeHtml(capturas, grades) {
 }
 
 function abrirGrades() {
-    let titulo = "Saídas sem capturas (grades)";
+    let titulo = "Saídas e taxa de sucesso";
     try {
         let grades = obterGrades();
         if (!grades.length) {

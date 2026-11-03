@@ -174,6 +174,7 @@ function novaSaida() {
     if (typeof cancelarEdicao === "function") cancelarEdicao();
     limparFormularioRegistro();
     atualizarLocaisOrdenados();
+    if (typeof limparMarcasCampos === "function") limparMarcasCampos();
     sugestaoAnterior = { data: null, lua: null, periodoDia: null };
     aplicarSugestoesRegisto();
     abrirCondicoes();

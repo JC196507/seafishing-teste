@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // A marca vermelha de «campo em falta» desaparece assim que mexes no campo
+    const ecraRegisto = document.getElementById('registo');
+    if (ecraRegisto) {
+        ['input', 'change'].forEach(ev => ecraRegisto.addEventListener(ev, e => {
+            if (e.target && e.target.classList) e.target.classList.remove('campo-em-falta');
+        }));
+    }
     carregarDados();
     preencherAnos();
     if (typeof preencherAnosComparacao === "function") preencherAnosComparacao();
@@ -75,6 +82,81 @@ function atualizarLocaisOrdenados() {
     }
 }
 
+// ===== Validação do registo: diz exatamente o que falta ou está errado =====
+const ROTULOS_CAMPOS = {
+    tipoPeixe: 'Espécie', peso: 'Peso', tamanho: 'Tamanho', dataCaptura: 'Data', concelho: 'Concelho',
+    local: 'Local', tipoPesca: 'Técnica de pesca', tipoIsco: 'Isco', mare: 'Maré', lua: 'Lua', periodoDia: 'Período do dia'
+};
+const ORDEM_CAMPOS_CAPTURA = ['tipoPeixe', 'peso', 'tamanho', 'dataCaptura', 'concelho', 'local', 'tipoPesca', 'tipoIsco', 'mare', 'lua', 'periodoDia'];
+const ORDEM_CAMPOS_GRADE = ['dataCaptura', 'concelho', 'local', 'tipoPesca', 'tipoIsco', 'mare', 'lua', 'periodoDia'];
+const IDS_DAS_CONDICOES = ['dataCaptura', 'concelho', 'local', 'tipoPesca', 'tipoIsco', 'mare', 'lua', 'periodoDia'];
+
+// Data de hoje no relógio do telemóvel (AAAA-MM-DD). Compara-se como texto: ao contrário de
+// new Date('AAAA-MM-DD') (que é meia-noite UTC), não recusa «hoje» entre as 00:00 e as 01:00 no verão.
+function hojeLocalISO() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+function problemasDoRegisto(ids) {
+    const faltam = [], erros = [];
+    const valor = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+    ids.forEach(id => { const v = valor(id); if (v === '' || v === null || v === undefined) faltam.push(id); });
+    const preenchido = id => ids.includes(id) && !faltam.includes(id);
+    if (preenchido('peso')) {
+        const p = parseInt(valor('peso'));
+        if (isNaN(p) || p <= 100 || p > 100000) erros.push({ id: 'peso', texto: 'o peso tem de estar entre 101 e 100 000 gramas' });
+    }
+    if (preenchido('tamanho')) {
+        const t = parseInt(valor('tamanho'));
+        if (isNaN(t) || t <= 10 || t > 300) erros.push({ id: 'tamanho', texto: 'o tamanho tem de estar entre 11 e 300 cm' });
+    }
+    if (preenchido('dataCaptura')) {
+        const d = valor('dataCaptura');
+        if (isNaN(new Date(d).getTime())) erros.push({ id: 'dataCaptura', texto: 'a data não é válida' });
+        else if (d > hojeLocalISO()) erros.push({ id: 'dataCaptura', texto: 'a data não pode ser no futuro' });
+    }
+    return { faltam, erros };
+}
+
+function listaEmTexto(itens) {
+    if (itens.length <= 1) return itens.join('');
+    return itens.slice(0, -1).join(', ') + ' e ' + itens[itens.length - 1];
+}
+
+function mensagemDeProblemas(p) {
+    const partes = [];
+    if (p.faltam.length) partes.push('Falta preencher: ' + listaEmTexto(p.faltam.map(id => ROTULOS_CAMPOS[id] || id)) + '.');
+    if (p.erros.length) partes.push('Verifica: ' + listaEmTexto(p.erros.map(e => e.texto)) + '.');
+    return partes.join(' ');
+}
+
+function limparMarcasCampos() {
+    ORDEM_CAMPOS_CAPTURA.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.classList) el.classList.remove('campo-em-falta');
+    });
+}
+
+// Mostra a mensagem, destaca os campos, abre as condições se for preciso e leva-te ao primeiro
+function mostrarProblemas(p, ordem) {
+    limparMarcasCampos();   // tira as marcas de tentativas anteriores: só ficam os problemas de agora
+    exibirMensagem('error', mensagemDeProblemas(p));
+    const ids = p.faltam.concat(p.erros.map(e => e.id));
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.classList) el.classList.add('campo-em-falta');
+    });
+    if (ids.some(id => IDS_DAS_CONDICOES.includes(id)) && typeof abrirCondicoes === 'function') abrirCondicoes();
+    const primeiro = ordem.find(id => ids.includes(id));
+    const el = primeiro ? document.getElementById(primeiro) : null;
+    if (el) {
+        if (el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (el.focus) el.focus({ preventScroll: true });
+    }
+}
+
 function gravarCaptura() {
     // O período do dia (e a lua) sugeridos acompanham a hora de agora enquanto não os mudares à mão
     if (typeof aplicarSugestoesRegisto === 'function') aplicarSugestoesRegisto();
@@ -93,9 +175,9 @@ function gravarCaptura() {
     let lua = document.getElementById("lua").value;
     let periodoDia = document.getElementById("periodoDia").value;
 
-    if (!data || isNaN(peso) || peso <= 100 || peso > 100000 || isNaN(tamanho) || tamanho <= 10 || tamanho > 300 || !concelho || !local || !tipoIsco || !tipoPeixe || !tipoPesca || !mare || !lua || !periodoDia || new Date(data) > new Date()) {
-        exibirMensagem('error', 'Preencha todos os campos correctamente e use data válida!');
-        if (typeof abrirCondicoes === 'function') abrirCondicoes();
+    const problemas = problemasDoRegisto(ORDEM_CAMPOS_CAPTURA);
+    if (problemas.faltam.length || problemas.erros.length) {
+        mostrarProblemas(problemas, ORDEM_CAMPOS_CAPTURA);
         return;
     }
 
@@ -124,6 +206,7 @@ function gravarCaptura() {
     if (!guardarCapturas(capturas)) return;
 
     exibirMensagem('success', 'Registo gravado com sucesso!');
+    limparMarcasCampos();
     if (eraEdicao) {
         limparFormularioRegistro();
         atualizarLocaisOrdenados();
@@ -417,13 +500,19 @@ function preencherAnos() {
     if (typeof preencherAnosComparacao === "function") preencherAnosComparacao();
 }
 
+// Cada tipo de mensagem tem o seu temporizador: um aviso novo não é escondido pelo do anterior.
+const temporizadoresMensagem = {};
+
 function exibirMensagem(tipo, mensagem) {
-    const messageElement = document.getElementById(`message${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+    const id = `message${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`;
+    const messageElement = document.getElementById(id);
     messageElement.textContent = mensagem;
     messageElement.style.display = 'block';
-    setTimeout(() => {
+    if (typeof clearTimeout === 'function') clearTimeout(temporizadoresMensagem[id]);
+    // Os erros ficam mais tempo, para dar para ler o que falta
+    temporizadoresMensagem[id] = setTimeout(() => {
         messageElement.style.display = 'none';
-    }, 3000); // A mensagem desaparece após 3 segundos
+    }, tipo === 'error' ? 7000 : 3000);
 }
 
 // ===== Navegação entre ecrãs =====

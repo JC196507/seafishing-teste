@@ -1,5 +1,5 @@
 // service-worker.js
-const CACHE_NAME = 'SeaFishing-cache-v19';
+const CACHE_NAME = 'SeaFishing-cache-v20';
 const urlsToCache = [
     '/',
     'index.html',

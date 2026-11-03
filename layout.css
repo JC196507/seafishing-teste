@@ -551,3 +551,15 @@ body.ecra-relatorio .tab-content {
 .botao-pequeno:hover {
     background-color: #8f2230;
 }
+
+/* Campo por preencher ou com valor errado (aparece depois de tocares em Gravar) */
+.campo-em-falta {
+    border-color: var(--terracota) !important;
+    background-color: var(--terracota-bg) !important;
+    box-shadow: 0 0 0 3px rgba(217, 118, 74, 0.3) !important;
+}
+
+/* Linhas com poucas saídas: dizem ainda pouco */
+.rel-tabela tr.rel-poucos td:nth-child(n) {
+    color: var(--cinza-500);
+}
