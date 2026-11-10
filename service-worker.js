@@ -1,5 +1,5 @@
 // service-worker.js
-const CACHE_NAME = 'SeaFishing-cache-v20';
+const CACHE_NAME = 'SeaFishing-cache-v21';
 const urlsToCache = [
     '/',
     'index.html',
@@ -13,11 +13,12 @@ const urlsToCache = [
     'manifest.json',
     'ícone/icon-192.png',
     'ícone/icon-512.png',
+    'diagnostico.js',
     'dados.js',
-    'utils.js',
     'print1.js',
     'relatorios.js',
     'grades.js',
+    'listas.js',
     'script.js',
     'locais.js',
     'analise_avancada.js',

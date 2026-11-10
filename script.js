@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js')
         .then(() => console.log("Service Worker registado!"))
-        .catch(error => console.log("Erro no Service Worker:", error));
+        .catch(error => console.error("Erro no Service Worker:", error));
 }
 
 function carregarDados() {
@@ -29,7 +29,7 @@ function carregarDados() {
     concelhoSelect.innerHTML = '<option value="">Seleccione um concelho</option>';
     localSelect.innerHTML = '<option value="">Seleccione um local</option>';
 
-    concelhosLocais.forEach(concelho => {
+    listaConcelhosLocais().forEach(concelho => {
         let option = document.createElement("option");
         option.value = concelho.concelho;
         option.textContent = concelho.concelho;
@@ -70,7 +70,7 @@ function atualizarLocaisOrdenados() {
     localSelect.innerHTML = '<option value="">Seleccione um local</option>';
 
     if (concelhoSelecionado) {
-        let concelhoEncontrado = concelhosLocais.find(c => c.concelho === concelhoSelecionado);
+        let concelhoEncontrado = listaConcelhosLocais().find(c => c.concelho === concelhoSelecionado);
         if (concelhoEncontrado) {
             concelhoEncontrado.locais.forEach(local => {
                 let option = document.createElement("option");
@@ -233,11 +233,12 @@ function chaveCaptura(c) {
 function exportarDados() {
     let conteudo = JSON.stringify({
         formato: "pesca-ludica-backup",
-        versao: 3,
+        versao: 4,
         exportadoEm: new Date().toISOString(),
         capturas: obterCapturas(),
         locaisCoords: obterCoordsLocais(),
-        grades: obterGrades()
+        grades: obterGrades(),
+        listas: obterListas()
     });
     let blob = new Blob([conteudo], { type: "application/json" });
     let url = URL.createObjectURL(blob);
@@ -254,7 +255,7 @@ function exportarDados() {
 }
 
 function todosOsNomesDeLocais() {
-    return concelhosLocais.flatMap(c => c.locais);
+    return listaConcelhosLocais().flatMap(c => c.locais);
 }
 
 function escaparHTML(texto) {
@@ -279,6 +280,9 @@ function importarDados(event) {
     leitor.onload = function (e) {
         try {
             let bruto = JSON.parse(e.target.result);
+            let modoRadio = document.querySelector('input[name="modoImportacao"]:checked');
+            let modo = modoRadio ? modoRadio.value : "juntar";
+            let listasAcrescentadas = 0;
             let dadosImportados;
             let coordsImportadas = null; // só existe em backups do formato novo
             let gradesImportadas = null;  // só existe em backups com grades
@@ -286,6 +290,12 @@ function importarDados(event) {
                 dadosImportados = bruto; // formato antigo: só capturas
             } else if (bruto && Array.isArray(bruto.capturas)) {
                 dadosImportados = bruto.capturas;
+                // As listas entram PRIMEIRO: as posições e as grades do backup podem referir locais ou iscos
+                // que só existem nas listas do backup.
+                if (bruto.listas && typeof bruto.listas === 'object' && !Array.isArray(bruto.listas) && typeof listaFiltrarImportadas === 'function') {
+                    listasAcrescentadas = listaImportar(listaFiltrarImportadas(bruto.listas), modo);
+                    if (listasAcrescentadas < 0) return;   // não conseguiu gravar
+                }
                 coordsImportadas = filtrarCoordsImportadas(bruto.locaisCoords, todosOsNomesDeLocais());
                 if (Array.isArray(bruto.grades) && typeof filtrarGradesImportadas === 'function') {
                     gradesImportadas = filtrarGradesImportadas(bruto.grades, todosOsNomesDeLocais());
@@ -294,9 +304,6 @@ function importarDados(event) {
                 throw new Error("Formato inválido");
             }
             dadosImportados = dadosImportados.map(sanitizarCaptura);
-
-            let modoRadio = document.querySelector('input[name="modoImportacao"]:checked');
-            let modo = modoRadio ? modoRadio.value : "juntar";
 
             if (modo === "substituir") {
                 dadosImportados.forEach(c => { if (!c.id) c.id = gerarIdCaptura(); });
@@ -331,10 +338,13 @@ function importarDados(event) {
                 }
             }
 
+            if (listasAcrescentadas > 0) exibirMensagem('success', `Listas: ${listasAcrescentadas} item(ns) acrescentado(s).`);
+
             preencherAnos();
             setTimeout(atualizarLocaisOrdenados, 0);
             atualizarEstadoBackup();
         } catch (err) {
+            console.error('Erro ao importar o backup:', err);
             exibirMensagem('error', 'Ficheiro inválido. Confirma que é um backup exportado por esta app.');
         }
         event.target.value = "";
@@ -453,7 +463,7 @@ function editarCaptura(captura) {
 
     // Vai descobrir a que concelho pertence este local, para pré-preencher os dois
     // campos correctamente (antes limpava sempre o concelho, e o local ficava por preencher)
-    let concelhoEncontrado = concelhosLocais.find(c => c.locais.includes(captura.local));
+    let concelhoEncontrado = listaConcelhosLocais().find(c => c.locais.includes(captura.local));
 
     document.getElementById("dataCaptura").value = captura.data;
     document.getElementById("peso").value = captura.peso;
@@ -550,6 +560,12 @@ function aplicarSecao(idSecao) {
   }
   if (idSecao === 'registo' && typeof aoMostrarRegisto === 'function') {
     aoMostrarRegisto();
+  }
+  if (idSecao === 'listas' && typeof aoMostrarListas === 'function') {
+    aoMostrarListas();
+  }
+  if (idSecao === 'dados' && typeof atualizarDiagnostico === 'function') {
+    atualizarDiagnostico();
   }
   if (idSecao === 'inicio' && typeof inicioAtualizar === 'function') {
     inicioAtualizar();

@@ -33,13 +33,6 @@
     display: none;
 }
 
-.chart-container {
-    width: 100%;
-    height: auto;
-    min-height: 400px;
-    margin-top: 15px;
-}
-
 /* Estilos para a secção de acções (botões de consulta) em layout de grade */
 .actions.grid-layout {
     display: grid;
@@ -563,3 +556,35 @@ body.ecra-relatorio .tab-content {
 .rel-tabela tr.rel-poucos td:nth-child(n) {
     color: var(--cinza-500);
 }
+
+/* Botões Limpar: só aparecem quando há resultados para limpar */
+#containerCapturas:empty ~ .gravar:has(#limparTabelaCapturas),
+#analiseGlobal:empty ~ .gravar:has(#limparAnaliseGlobal) {
+    display: none;
+}
+
+/* Botão com aspeto de ligação, dentro de uma frase */
+.botao-ligacao {
+    padding: 0;
+    background: none;
+    color: var(--azul-700);
+    box-shadow: none;
+    font-size: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.botao-ligacao:hover {
+    background: none;
+    color: var(--azul-900);
+    transform: none;
+}
+
+/* Texto do diagnóstico, para copiar à mão se o browser não deixar copiar */
+.diag-texto {
+    width: 100%;
+    margin-top: 8px;
+    font-family: monospace;
+    font-size: 0.8em;
+}
+

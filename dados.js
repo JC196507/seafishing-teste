@@ -3,11 +3,12 @@
 // destas funções, nunca directamente no localStorage. Assim, trocar o
 // armazenamento (ex.: para IndexedDB) passa a mexer apenas neste ficheiro.
 
-const APP_VERSAO = "2.8";
+const APP_VERSAO = "2.9";
 const CHAVE_CAPTURAS = "capturas";
 const CHAVE_ULTIMO_BACKUP = "ultimoBackup";
 const CHAVE_COORDS = "locaisCoords";
 const CHAVE_GRADES = "grades";
+const CHAVE_LISTAS = "listasPersonalizadas";
 
 function obterCapturas() {
     let bruto = null;
@@ -119,6 +120,47 @@ function guardarGrades(lista) {
         console.error("Falha ao gravar grades:", erro);
         if (typeof exibirMensagem === "function") {
             exibirMensagem("error", "Não foi possível gravar a grade (armazenamento cheio?). Faz um backup já!");
+        }
+        return false;
+    }
+}
+
+// ===== Listas personalizadas: locais, espécies e iscos que acrescentaste =====
+// { locais: [{ concelho, nome }], especies: [nome], iscos: [nome] }
+// As listas de origem (no código e no HTML) não se mexem; isto é só o que acrescentas.
+function listasVazias() {
+    return { locais: [], especies: [], iscos: [] };
+}
+
+function obterListas() {
+    let bruto = null;
+    try {
+        bruto = localStorage.getItem(CHAVE_LISTAS);
+        if (!bruto) return listasVazias();
+        let d = JSON.parse(bruto);
+        if (!d || typeof d !== "object" || Array.isArray(d)) return listasVazias();
+        return {
+            locais: Array.isArray(d.locais) ? d.locais.filter(l => l && typeof l.concelho === "string" && typeof l.nome === "string") : [],
+            especies: Array.isArray(d.especies) ? d.especies.filter(x => typeof x === "string") : [],
+            iscos: Array.isArray(d.iscos) ? d.iscos.filter(x => typeof x === "string") : []
+        };
+    } catch (erro) {
+        console.error("Listas personalizadas ilegíveis:", erro);
+        try {
+            if (bruto) localStorage.setItem(CHAVE_LISTAS + "_corrompido_" + Date.now(), bruto);
+        } catch (e) { /* sem espaço: nada a fazer */ }
+        return listasVazias();
+    }
+}
+
+function guardarListas(listas) {
+    try {
+        localStorage.setItem(CHAVE_LISTAS, JSON.stringify(listas));
+        return true;
+    } catch (erro) {
+        console.error("Falha ao gravar as listas:", erro);
+        if (typeof exibirMensagem === "function") {
+            exibirMensagem("error", "Não foi possível gravar a lista (armazenamento cheio?). Faz um backup já!");
         }
         return false;
     }

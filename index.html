@@ -63,6 +63,7 @@
             <section class="registo-captura">
                 <h2>Registo de captura</h2>
                 <p class="mapa-ajuda">O local e as condições ficam guardados para a captura seguinte. Mudaste de sítio? Toca em «Nova saída».</p>
+                <p class="mapa-ajuda">Falta um local, espécie ou isco? <button type="button" class="botao-ligacao" onclick="mostrarSecao('listas')">Acrescentar</button></p>
 
                 <h3 class="registo-grupo">Esta captura</h3>
                 <div class="form-grid">
@@ -231,7 +232,7 @@
 		</button>
 		</div>
 		<div class="gravar">
-		<button onclick="limparAnaliseGlobal()">
+		<button id="limparAnaliseGlobal" onclick="limparAnaliseGlobal()">
         <i class="fas fa-eraser"></i> Limpar Análise Global
 		</button>
 		</div>
@@ -346,6 +347,32 @@
             </section>
         </div>
 
+        <div id="listas" class="tab-content">
+            <section class="registo-captura">
+                <h2>Locais, espécies e iscos</h2>
+                <p class="mapa-ajuda">Acrescenta o que falta. O que já vem na app não se apaga. O que acrescentares só se apaga se ainda não tiver sido usado em nenhum registo.</p>
+
+                <h3 class="registo-grupo">Novo local</h3>
+                <div class="form-grid">
+                    <div class="form-row"><select id="listaConcelho" onchange="listaAoMudarConcelho()"><option value="">Escolhe o concelho ou zona</option></select></div>
+                    <div class="form-row" id="listaConcelhoNovoLinha" style="display:none"><input type="text" id="listaConcelhoNovo" placeholder="Nome do concelho ou zona novo" maxlength="40"></div>
+                    <div class="form-row"><input type="text" id="listaLocalNovo" placeholder="Nome do local" maxlength="40"></div>
+                </div>
+                <div class="gravar"><button type="button" onclick="adicionarLocalLista()"><i class="fas fa-plus"></i> Adicionar local</button></div>
+
+                <h3 class="registo-grupo">Nova espécie</h3>
+                <div class="form-row"><input type="text" id="listaEspecieNova" placeholder="Nome da espécie" maxlength="40"></div>
+                <div class="gravar"><button type="button" onclick="adicionarEspecieLista()"><i class="fas fa-plus"></i> Adicionar espécie</button></div>
+
+                <h3 class="registo-grupo">Novo isco</h3>
+                <div class="form-row"><input type="text" id="listaIscoNovo" placeholder="Nome do isco" maxlength="40"></div>
+                <div class="gravar"><button type="button" onclick="adicionarIscoLista()"><i class="fas fa-plus"></i> Adicionar isco</button></div>
+
+                <h3>O que acrescentaste</h3>
+                <div class="table-container" id="listaPersonalizada"></div>
+            </section>
+        </div>
+
         <div id="dados" class="tab-content">
             <section class="registo-captura">
                 <h2>Cópia de segurança</h2>
@@ -370,6 +397,21 @@
                     <input type="file" id="ficheiroImportacao" accept="application/json,.json" onchange="importarDados(event)">
                 </div>
 
+                <h3>Listas</h3>
+                <p>Locais, espécies e iscos que acrescentaste.</p>
+                <div class="gravar"><button type="button" class="botao-secundario" onclick="mostrarSecao('listas')"><i class="fas fa-list"></i> Locais, espécies e iscos</button></div>
+
+                <h3>Diagnóstico</h3>
+                <p>Se alguma coisa não funcionar, copia isto e envia-me: diz-me o que se passou, sem incluir as tuas capturas. Sem internet é normal aparecerem falhas a carregar o mapa e os gráficos.</p>
+                <p id="diagResumo" class="estado-backup"></p>
+                <div class="table-container" id="diagErros"></div>
+                <textarea id="diagTexto" class="diag-texto" readonly style="display:none" rows="8"></textarea>
+                <div class="actions grid-layout">
+                    <button type="button" onclick="copiarDiagnostico()"><i class="fas fa-copy"></i> Copiar</button>
+                    <button type="button" onclick="partilharDiagnostico()"><i class="fas fa-share-nodes"></i> Partilhar</button>
+                    <button type="button" onclick="limparRegistoErros()"><i class="fas fa-eraser"></i> Limpar registo</button>
+                </div>
+
                 <p class="versao-app">Pesca Lúdica · versão <span id="versaoApp"></span></p>
             </section>
         </div>
@@ -380,12 +422,13 @@
             </div>
         </footer>
     </div>
+<script src="diagnostico.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="dados.js"></script>
-    <script src="utils.js"></script>
     <script src="print1.js"></script>
     <script src="relatorios.js"></script>
     <script src="grades.js"></script>
+    <script src="listas.js"></script>
 	<script src="script.js"></script>
     <script src="locais.js"></script>
     <script src="analise_avancada.js"></script>

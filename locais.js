@@ -28,4 +28,16 @@ const concelhosLocais = [
         locais: ["Aguda", "Barroso", "Bloqueira-Vld", "Canide", "Francelos", "Granja", "Miramar", "Paramos", "Piriri", "Rio Douro", "Silvalde", "Valadares", "Vibrações"]
     },
   ];
-  
+
+// Concelhos e locais a usar na app: os de origem + os que acrescentaste (ver listas.js).
+// Os de origem ficam primeiro, na ordem de sempre; os teus vêm a seguir, por ordem alfabética.
+function listaConcelhosLocais() {
+    let custom = (typeof obterListas === "function") ? obterListas().locais : [];
+    let resultado = concelhosLocais.map(c => ({ concelho: c.concelho, locais: c.locais.slice() }));
+    custom.slice().sort((a, b) => a.nome.localeCompare(b.nome, "pt")).forEach(item => {
+        let c = resultado.find(x => x.concelho === item.concelho);
+        if (!c) { c = { concelho: item.concelho, locais: [] }; resultado.push(c); }
+        if (!c.locais.includes(item.nome)) c.locais.push(item.nome);
+    });
+    return resultado;
+}
